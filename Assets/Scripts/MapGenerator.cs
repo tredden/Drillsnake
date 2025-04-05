@@ -105,7 +105,6 @@ public class MapGenerator : MonoBehaviour
 
     Vector2 cmult(Vector2 a, Vector2 b) { return new Vector2(a.x * b.x - a.y * b.y, a.x*b.y + a.y*b.x); }
 
-
     // provides values for rock and dirt
     // >=.5 for rock
     float SampleDirtThickness(int x, int y)
@@ -133,7 +132,7 @@ public class MapGenerator : MonoBehaviour
         Vector2 c0 = new Vector2(-0.1009521484375f, -0.9563293457031254f);
         Vector2 c = c0 + (new Vector2(valnoise(uv * .005f, 10u), valnoise(uv * .005f, 11u)) * 2f- Vector2.one + (new Vector2(valnoise(uv * .02f, 12u), valnoise(uv * .02f, 13u)) - .5f*Vector2.one)) * .1f;
         Vector2 z = c;
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 13; i++) {
             z = cmult(z, z) + c;
         }
 
@@ -185,6 +184,7 @@ public class MapGenerator : MonoBehaviour
             }
         }
         texture.SetPixels32(colors, 0);
+        texture.Apply(false, false);
     }
 
     void GenerateSeed()
@@ -213,14 +213,13 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
-    Sprite sprite;
-
     // Update is called once per frame
     void Update()
     {
         if (update) {
             activeTexture = chunks[chunkCoord.x, chunkCoord.y];
-            GetComponent<SpriteRenderer>().sprite = Sprite.Create(activeTexture, new Rect(0, 0, chunkScale, chunkScale), new Vector2(chunkScale / 2, chunkScale / 2));
+            SpriteRenderer render = GetComponent<SpriteRenderer>();
+            render.sprite = Sprite.Create(activeTexture, new Rect(0, 0, chunkScale, chunkScale), Vector2.one * .5f, 1f);
             update = false;
         }
     }
