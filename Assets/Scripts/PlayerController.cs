@@ -23,8 +23,8 @@ public class PlayerController : MonoBehaviour
         ControlInputs controlInputs = new ControlInputs();
 
         controlInputs.turn = Input.GetAxis("Horizontal");
-        //controlInputs.targetSpeed = Input.GetAxis("Vertical");
-        controlInputs.targetSpeed = 1;
+        controlInputs.targetSpeed = Input.GetAxis("Vertical");
+        //controlInputs.targetSpeed = 1;
         
         snakeController.SetControlInputs(controlInputs);
     }

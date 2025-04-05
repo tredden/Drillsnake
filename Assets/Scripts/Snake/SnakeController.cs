@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public struct ControlInputs
@@ -13,10 +14,10 @@ public struct ControlInputs
 public class SnakeController : MonoBehaviour
 {
     [SerializeField]
-    private int snakeLength = 5;
+    private int segments = 5;
 
     [SerializeField]
-    private float segmentDistance = 0.5f;
+    private float segmentDistance = 10f;
 
     [SerializeField]
     private float maxSpeed = 50f;
@@ -26,23 +27,22 @@ public class SnakeController : MonoBehaviour
     [SerializeField]
     private float turnSpeed = 200f;
     
-    // [SerializeField]
-    // private GameObject snakeSegmentPrefab;
+    [SerializeField]
+    private GameObject snakeSegmentPrefab;
 
     private List<GameObject> snakeSegments = new List<GameObject>();
-    private Queue<PositionData> positionHistory = new Queue<PositionData>();
 
     private ControlInputs controlInputs;
     private float speed = 0f;
 
+    // The distance traveled since the snake started
+    private float distanceSinceStart = 0f;
+
+
     // Start is called before the first frame update
     void Start()
     {
-        // for (int i = 0; i < snakeLength; i++)
-        // {
-        //     GameObject segment = Instantiate(snakeSegmentPrefab, transform.position, Quaternion.identity);
-        //     snakeSegments.Add(segment);
-        // }
+        MakeSegments(segments);
     }
 
     // Update is called once per frame
@@ -52,22 +52,41 @@ public class SnakeController : MonoBehaviour
         float turn = controlInputs.turn * turnSpeed * Time.deltaTime;
         transform.Rotate(0, 0, -turn);
         speed = Mathf.MoveTowards(speed, controlInputs.targetSpeed * maxSpeed, acceleration * Time.deltaTime);
-        
+        distanceSinceStart += speed * Time.deltaTime;
+
         Vector3 position = transform.position;
         position.x += Mathf.Sin(transform.eulerAngles.z * Mathf.Deg2Rad) * speed * Time.deltaTime;
         position.y += -Mathf.Cos(transform.eulerAngles.z * Mathf.Deg2Rad) * speed * Time.deltaTime;
         transform.position = position;
 
+        SnakeSegment segment = snakeSegments[0].GetComponent<SnakeSegment>();
 
+        segment.positionQueue.Enqueue(new PositionData
+        {
+            position = new Vector2(position.x, position.y),
+            rotation = transform.eulerAngles.z,
+            distanceSinceStart = distanceSinceStart,
+        });
+        segment.OnParentMove(distanceSinceStart);
+    }
 
-        // Update position history
-        // PositionData positionData = new PositionData();
-        // positionData.transform = transform;
-        // positionData.distanceDelta = speed * Time.deltaTime;
-        // positionHistory.Enqueue(positionData);
+    void MakeSegments(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            GameObject segment = Instantiate(snakeSegmentPrefab, transform.position, Quaternion.identity);
+//            segment.transform.SetParent(transform);
+//            segment.transform.localPosition = new Vector3(0, -segmentDistance * (i + 1), 0);
+            snakeSegments.Add(segment);
 
-        // 
-        
+            SnakeSegment currentSegment = segment.GetComponent<SnakeSegment>();
+            if (i > 0)
+            {
+                SnakeSegment previousSegment = snakeSegments[i - 1].GetComponent<SnakeSegment>();
+                previousSegment.nextSegment = currentSegment;
+            }
+        }
+        Debug.Log("Snake segments created: " + snakeSegments.Count);
     }
 
     public void SetControlInputs(ControlInputs inputs)
