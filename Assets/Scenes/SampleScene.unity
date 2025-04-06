@@ -551,9 +551,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cellPrefab: {fileID: 1583021997617891872, guid: d95dc6f6b5d44684d81007c2db012cff, type: 3}
   seed: 0
-  pixelWidth: 4096
-  pixelHeight: 16384
-  chunkScale: 128
+  pixelWidth: 1024
+  pixelHeight: 1024
+  chunkScale: 1024
   worldScale: 8
   textures: []
   activeTexture: {fileID: 0}

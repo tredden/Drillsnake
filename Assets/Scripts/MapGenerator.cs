@@ -239,21 +239,22 @@ public class MapGenerator : MonoBehaviour
 
     void GenerateChunkTexture(int x0, int y0, Texture2D texture)
     {
-        Color32[] colors = new Color32[chunkScale * chunkScale];
+        Color32[] colors32 = new Color32[chunkScale * chunkScale];
+        Color[] colors = new Color[chunkScale * chunkScale];
         int i = 0;
         for (int yi = 0; yi < chunkScale; yi++) {
             int y = yi + y0;
             for (int xi = 0; xi < chunkScale; xi++) {
                 int x = xi + x0;
                 bool inBounds = x >= 0 && x < pixelWidth && y >= 0 && y < pixelHeight;
-                colors[i].a = (byte)(inBounds ? 255 : 0);
-                colors[i].r = (byte)(inBounds ? SampleHazardValue(x, y) * 255: 0);
-                colors[i].g = (byte)(inBounds ? SampleOreValue(x, y) * 255 : 0);
-                colors[i].b = (byte)(inBounds ? SampleDirtThickness(x, y) * 255: 0);
+                Color c = new Color(SampleHazardValue(x, y), SampleOreValue(x, y), SampleDirtThickness(x, y), inBounds ? 1f : 0f);
+                colors[i] = c;
+                colors32[i] = new Color32((byte)Mathf.Max(255, c.r * 256), (byte)Mathf.Max(255, c.g * 256), (byte)Mathf.Max(255, c.b * 256), (byte)Mathf.Max(255, c.a * 256));
                 i++;
             }
         }
-        texture.SetPixels32(colors, 0);
+        // texture.SetPixels32(colors32, 0);
+        texture.SetPixels(colors, 0);
         texture.Apply(false, false);
     }
 
