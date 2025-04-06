@@ -118,6 +118,7 @@ public class SnakeController : MonoBehaviour
             Transform parentTransform = i > 0 ? snakeSegments[i - 1].transform : transform;
             GameObject prefab = i == 0 ? headPrefab : bodyPrefab;
             GameObject segment = Instantiate(prefab, parentTransform.position, parentTransform.rotation);
+            segment.GetComponent<SnakeSegment>().owner = this;
             snakeSegments.Add(segment);
 
             GameObject currentSegment = segment;
@@ -163,6 +164,20 @@ public class SnakeController : MonoBehaviour
     public void SetControlInputs(ControlInputs inputs)
     {
         controlInputs = inputs;
+    }
+
+    public void HandleCollision(Collider2D collision)
+    {
+        Debug.Log("Collision detected with: " + collision.gameObject.name);
+		collision.gameObject.TryGetComponent(out SnakeSegment segment);
+        if (segment == null) return;
+        // Check if the snake collided with itself
+        if (segment.owner == this)
+        {
+            // Explode the snake
+            Debug.Log("Snake collided with itself!");
+            Explode();
+        }
     }
 
     public void Explode() {

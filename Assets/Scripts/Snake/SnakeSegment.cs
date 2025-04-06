@@ -18,6 +18,8 @@ public class SnakeSegment : MonoBehaviour
     private PositionData? beforeTargetDistance;
     private PositionData? afterTargetDistance;
 
+    public SnakeController? owner;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -69,5 +71,10 @@ public class SnakeSegment : MonoBehaviour
             }
             nextSegment?.OnParentMove(targetDistance);
         }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        owner?.HandleCollision(collision);
     }
 }
