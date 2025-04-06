@@ -6,10 +6,14 @@ using UnityEngine;
 public class SnakeSegment : MonoBehaviour
 {
     [SerializeField]
-    private float segmentLength = 20f;
+    float frontSpacing = 10f;
+    [SerializeField]
+    private float backSpacing = 10f;
     
+    float computedSpacing = 0f;
+
     public Queue<PositionData> positionQueue = new Queue<PositionData>();
-    public GameObject? next;
+    private GameObject? next;
 
     private PositionData? beforeTargetDistance;
     private PositionData? afterTargetDistance;
@@ -26,9 +30,23 @@ public class SnakeSegment : MonoBehaviour
 
     }
 
+    public void SetNext(GameObject? next)
+    {
+        this.next = next;
+        if (next == null) return;
+
+        SnakeSegment nextSegment = next.GetComponent<SnakeSegment>();
+        if (nextSegment == null)
+        {
+            Debug.LogError("Next segment is not a SnakeSegment");
+            return;
+        }
+        nextSegment.computedSpacing = nextSegment.frontSpacing + backSpacing;
+    }
+
     public void OnParentMove(float parentDistanceSinceStart)
     {
-		float targetDistance = parentDistanceSinceStart - segmentLength;
+		float targetDistance = parentDistanceSinceStart - computedSpacing;
         SnakeSegment? nextSegment = next != null ? next.GetComponent<SnakeSegment>() : null;
 
         while (positionQueue.Count > 0 && positionQueue.Peek().distanceSinceStart < targetDistance)

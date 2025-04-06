@@ -17,20 +17,18 @@ public class SnakeController : MonoBehaviour
 {
     [SerializeField]
     private int segments = 5;
+    [SerializeField]
+    private float maxSpeed = 128f;
+    [SerializeField]
+    private float acceleration = 48f;
 
     [SerializeField]
-    private float segmentDistance = 10f;
-
-    [SerializeField]
-    private float maxSpeed = 50f;
-    [SerializeField]
-    private float acceleration = 10f;
-
-    [SerializeField]
-    private float turnSpeed = 200f;
+    private float turnSpeed = 180f;
     
     [SerializeField]
-    private GameObject snakeSegmentPrefab;
+    private GameObject headPrefab;
+    [SerializeField]
+    private GameObject bodyPrefab;
     private List<GameObject> snakeSegments = new List<GameObject>();
 
     private ControlInputs controlInputs;
@@ -38,7 +36,6 @@ public class SnakeController : MonoBehaviour
 
     // The distance traveled since the snake started
     private float distanceSinceStart = 0f;
-
 
     // Start is called before the first frame update
     void Start()
@@ -65,7 +62,7 @@ public class SnakeController : MonoBehaviour
 
         if (snakeSegments.Count == 0) return;
 
-        SnakeSegment segment = snakeSegments[0]?.GetComponent<SnakeSegment>();
+        SnakeSegment segment = snakeSegments[0].GetComponent<SnakeSegment>();
         segment.positionQueue.Enqueue(new PositionData
         {
             position = new Vector2(position.x, position.y),
@@ -81,14 +78,21 @@ public class SnakeController : MonoBehaviour
         for (int i = count; i < count + add; i++)
         {
             Transform parentTransform = i > 0 ? snakeSegments[i - 1].transform : transform;
-            GameObject segment = Instantiate(snakeSegmentPrefab, parentTransform.position, parentTransform.rotation);
+            GameObject prefab = i == 0 ? headPrefab : bodyPrefab;
+            GameObject segment = Instantiate(prefab, parentTransform.position, parentTransform.rotation);
             snakeSegments.Add(segment);
 
             GameObject currentSegment = segment;
             if (i > 0)
             {
                 GameObject previousSegment = snakeSegments[i - 1];
-                previousSegment.GetComponent<SnakeSegment>().next = currentSegment;
+                SnakeSegment previousSegmentComponent = previousSegment.GetComponent<SnakeSegment>();
+                if (previousSegmentComponent == null)
+                {
+                    Debug.LogError("Previous segment is null");
+                    return;
+                }
+                previousSegmentComponent.SetNext(currentSegment);
             }
         }
     }
@@ -104,7 +108,7 @@ public class SnakeController : MonoBehaviour
         if (length < snakeSegments.Count)
         {
 			SnakeSegment newLastSegment = snakeSegments[length].GetComponent<SnakeSegment>();
-            newLastSegment.next = null;
+            newLastSegment.SetNext(null);
             for (int i = length; i < snakeSegments.Count; i++)
             {
                 Destroy(snakeSegments[i]);
