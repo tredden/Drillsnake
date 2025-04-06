@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using Unity.VisualScripting;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 public struct ControlInputs
@@ -41,12 +43,15 @@ public class SnakeController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        MakeSegments(segments);
+		SetLength(segments);
     }
 
     // Update is called once per frame
     void Update()
     {
+        // Tmp test
+        SetLength(Mathf.RoundToInt(Mathf.Abs(10 - Time.time % 20)));
+
         // Apply control inputs
         float turn = controlInputs.turn * turnSpeed * Time.deltaTime;
         transform.Rotate(0, 0, -turn);
@@ -58,8 +63,9 @@ public class SnakeController : MonoBehaviour
         position.y += -Mathf.Cos(transform.eulerAngles.z * Mathf.Deg2Rad) * speed * Time.deltaTime;
         transform.position = position;
 
-        SnakeSegment segment = snakeSegments[0].GetComponent<SnakeSegment>();
+        if (snakeSegments.Count == 0) return;
 
+        SnakeSegment segment = snakeSegments[0]?.GetComponent<SnakeSegment>();
         segment.positionQueue.Enqueue(new PositionData
         {
             position = new Vector2(position.x, position.y),
@@ -69,11 +75,13 @@ public class SnakeController : MonoBehaviour
         segment.OnParentMove(distanceSinceStart);
     }
 
-    void MakeSegments(int count)
+    private void AppendSegments(int add)
     {
-        for (int i = 0; i < count; i++)
+        int count = snakeSegments.Count;
+        for (int i = count; i < count + add; i++)
         {
-            GameObject segment = Instantiate(snakeSegmentPrefab, transform.position, Quaternion.identity);
+            Transform parentTransform = i > 0 ? snakeSegments[i - 1].transform : transform;
+            GameObject segment = Instantiate(snakeSegmentPrefab, parentTransform.position, parentTransform.rotation);
             snakeSegments.Add(segment);
 
             GameObject currentSegment = segment;
@@ -83,7 +91,30 @@ public class SnakeController : MonoBehaviour
                 previousSegment.GetComponent<SnakeSegment>().next = currentSegment;
             }
         }
-        Debug.Log("Snake segments created: " + snakeSegments.Count);
+    }
+
+    public void SetLength(int length)
+    {
+        if (length < 0)
+        {
+            Debug.LogError("Length cannot be negative");
+            return;
+        }
+
+        if (length < snakeSegments.Count)
+        {
+			SnakeSegment newLastSegment = snakeSegments[length].GetComponent<SnakeSegment>();
+            newLastSegment.next = null;
+            for (int i = length; i < snakeSegments.Count; i++)
+            {
+                Destroy(snakeSegments[i]);
+            }
+            snakeSegments.RemoveRange(length, snakeSegments.Count - length);
+        }
+        else if (length > snakeSegments.Count)
+        {
+            AppendSegments(length - snakeSegments.Count);
+        }
     }
 
     public void SetControlInputs(ControlInputs inputs)
