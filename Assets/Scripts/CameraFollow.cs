@@ -38,9 +38,9 @@ public class CameraFollowScript : MonoBehaviour
     void Update()
     {
         Vector3 screenPoint = cam.WorldToScreenPoint(target.position) / pixelCam.pixelRatio;
-        int minX = (cam.pixelWidth / pixelCam.pixelRatio - trackingPixelBounds.width) / 2;
+        int minX = trackingPixelBounds.x;
         int maxX = minX + trackingPixelBounds.width;
-        int minY = (cam.pixelHeight / pixelCam.pixelRatio - trackingPixelBounds.height) / 2;
+        int minY = trackingPixelBounds.y;
         int maxY = minY + trackingPixelBounds.height;
         Vector3 clampedScreenPoint = new Vector3(Mathf.Clamp(screenPoint.x, minX, maxX), Mathf.Clamp(screenPoint.y, minY, maxY), screenPoint.z);
         Vector3 delta = new Vector3(Mathf.RoundToInt(screenPoint.x - clampedScreenPoint.x), Mathf.RoundToInt(screenPoint.y - clampedScreenPoint.y), 0f);
