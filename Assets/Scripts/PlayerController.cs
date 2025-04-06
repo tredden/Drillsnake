@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -48,6 +49,12 @@ public class PlayerController : MonoBehaviour
             DrillStats drillStats = snakeController.drillStats;
             if (results.maxThickness > drillStats.drillHardness) {
 				snakeController.Explode();
+            }
+
+            if (snakeController.state == SnakeState.Dead && (Time.time - snakeController.deathTime > 0.3f))
+            {
+				snakeController.Reset();
+                snakeController.transform.position = new Vector3(0, 0, 0);
             }
         }
     }

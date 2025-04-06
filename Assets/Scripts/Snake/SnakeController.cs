@@ -15,6 +15,14 @@ public struct DrillStats
 }
 
 
+[System.Serializable]
+public enum SnakeState
+{
+    Alive,
+    Exploding,
+    Dead,
+}
+
 public class SnakeController : MonoBehaviour
 {
     [SerializeField]
@@ -36,9 +44,9 @@ public class SnakeController : MonoBehaviour
     private List<GameObject> snakeSegments = new List<GameObject>();
 
     private ControlInputs controlInputs;
-    private float speed = 0f;
-    private bool dead = false;
-    private float deathTime = 0f;
+    public float speed = 0f;
+    public SnakeState state = SnakeState.Alive;
+    public float deathTime = 0f;
 
     // The distance traveled since the snake started
     private float distanceSinceStart = 0f;
@@ -52,13 +60,9 @@ public class SnakeController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (dead) {
+        if (state == SnakeState.Dead) {
             speed = 0;
-            if (Time.time - deathTime > 2) {
-                Reset();
-            } else {
-                return;
-            }
+            return;
         }
         // Apply control inputs
         float turn = controlInputs.turn * turnSpeed * Time.deltaTime;
@@ -140,17 +144,17 @@ public class SnakeController : MonoBehaviour
 
     public void Explode() {
 		// Explodes the snake from the head down through its tail over time.
-		if (!dead) {
-            deathTime = Time.time;
-        }
+		if (state == SnakeState.Dead) return;
 
-		dead = true;
+		// TODO: Explode
+        deathTime = Time.time;
+        state = SnakeState.Dead;
         Debug.Log("Snake exploded!");
     }
 
     public void Reset() {
         // Reset the snake to its initial state
-        dead = false;
+        state = SnakeState.Alive;
         distanceSinceStart = 0f;
         speed = 0f;
 
