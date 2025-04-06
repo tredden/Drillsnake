@@ -6,6 +6,7 @@ public struct CarveResults
 {
     public bool didCarve;
     public float maxThickness;
+    public float averageThickness;
     public float totalGold;
     public float totalHazard;
 
@@ -13,6 +14,7 @@ public struct CarveResults
     {
         didCarve = false;
         maxThickness = startingThickness;
+        averageThickness = startingThickness;
         totalGold = startingGold;
         totalHazard = startingHazard;
     }
@@ -335,6 +337,7 @@ public class MapGenerator : MonoBehaviour
                 if (c.b != 0 || c.g != 0) {
                     output.didCarve = true;
                     output.maxThickness = Mathf.Max(output.maxThickness, c.b);
+                    output.averageThickness += c.b;
                     output.totalGold += c.g;
                     output.totalHazard += c.r;
                     c.b = 0; // rock
@@ -346,6 +349,7 @@ public class MapGenerator : MonoBehaviour
                 }
             } // end for y
         } // end for x
+        output.averageThickness /= Mathf.PI * radius * radius;
         foreach (Texture2D tex in updatedTextures) {
             tex.Apply(false, false);
         }

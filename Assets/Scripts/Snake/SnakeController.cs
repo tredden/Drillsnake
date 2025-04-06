@@ -10,7 +10,8 @@ public struct ControlInputs
 [System.Serializable]
 public struct DrillStats
 {
-    public float drillRadius;
+    public int drillRadius;
+    public Vector2Int drillOffset;
     public float drillHardness;
 }
 
@@ -31,6 +32,7 @@ public class SnakeController : MonoBehaviour
     private int segments = 5;
     [SerializeField]
     private float maxSpeed = 128f;
+    
     [SerializeField]
     private float acceleration = 48f;
 
@@ -42,7 +44,6 @@ public class SnakeController : MonoBehaviour
     [SerializeField]
     private GameObject bodyPrefab;
     private List<GameObject> snakeSegments = new List<GameObject>();
-
     private ControlInputs controlInputs;
     public float speed = 0f;
     public SnakeState state = SnakeState.Alive;
@@ -50,6 +51,8 @@ public class SnakeController : MonoBehaviour
 
     // The distance traveled since the snake started
     private float distanceSinceStart = 0f;
+
+    public int gold = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -85,6 +88,26 @@ public class SnakeController : MonoBehaviour
             distanceSinceStart = distanceSinceStart,
         });
         segment.OnParentMove(distanceSinceStart);
+
+        // Carve the map
+        // TODO: Move this into the SnakeController?
+        Vector3 drillCoord = transform.TransformPoint(
+            new Vector3(drillStats.drillOffset.x, drillStats.drillOffset.y, 0f));
+        MapGenerator map = MapGenerator.GetInstance();
+        if (map != null) {
+            CarveResults results = map.CarveMap(
+                Mathf.RoundToInt(drillCoord.x), Mathf.RoundToInt(drillCoord.y),
+                 drillStats.drillRadius);
+
+            // Elongate from gold
+            gold += Mathf.RoundToInt(results.totalGold);
+            this.SetLength(gold / 100 + 3);
+
+            // Explode when hitting rocks
+            if (results.maxThickness > drillStats.drillHardness) {
+				Explode();
+            }
+        }
     }
 
     private void AppendSegments(int add)

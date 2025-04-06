@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   drillStats:
-    drillRadius: 0
+    drillRadius: 8
     drillHardness: 0.5
   segments: 5
   maxSpeed: 128
@@ -54,6 +54,9 @@ MonoBehaviour:
   turnSpeed: 180
   headPrefab: {fileID: 6253960913987963442, guid: ec3274170ab4646eaa0a5469d6dff4c7, type: 3}
   bodyPrefab: {fileID: 1839290366713060048, guid: 40777acf14bc44eefafae77e1477f216, type: 3}
+  speed: 0
+  state: 0
+  deathTime: 0
 --- !u!114 &-9100898603482006569
 MonoBehaviour:
   m_ObjectHideFlags: 0

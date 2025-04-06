@@ -5,11 +5,6 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField]
-    int drillRadius = 8;
-    [SerializeField]
-    Vector2Int drillOffset;
-
     int gold = 0;
 
 	private SnakeController snakeController;
@@ -34,28 +29,19 @@ public class PlayerController : MonoBehaviour
         
         snakeController.SetControlInputs(controlInputs);
 
-        // TODO: Move this into the SnakeController?
-        Vector3 drillCoord = transform.TransformPoint(new Vector3(drillOffset.x, drillOffset.y, 0f));
-        MapGenerator map = MapGenerator.GetInstance();
-        if (map != null) {
-            CarveResults results = map.CarveMap(
-                Mathf.RoundToInt(drillCoord.x), Mathf.RoundToInt(drillCoord.y), drillRadius);
-
-            // Elongate from gold
-            gold += Mathf.RoundToInt(results.totalGold);
-            snakeController.SetLength(gold / 100 + 3);
-
-            // Explode when hitting rocks
-            DrillStats drillStats = snakeController.drillStats;
-            if (results.maxThickness > drillStats.drillHardness) {
-				snakeController.Explode();
-            }
-
-            if (snakeController.state == SnakeState.Dead && (Time.time - snakeController.deathTime > 0.3f))
-            {
-				snakeController.Reset();
-                snakeController.transform.position = new Vector3(0, 0, 0);
-            }
+        if (snakeController.state == SnakeState.Dead && (Time.time - snakeController.deathTime > 0.3f))
+        {
+            snakeController.Reset();
+            snakeController.transform.position = new Vector3(0, 0, 0);
         }
+    }
+
+    void ReturnToBase() {
+        float goldFactor = snakeController.state == SnakeState.Alive ? 1f : 0.7f;
+		gold += Mathf.RoundToInt(snakeController.gold * goldFactor);
+        snakeController.gold = 0;
+        snakeController.state = SnakeState.Alive;
+        snakeController.speed = 0f;
+        snakeController.transform.position = new Vector3(0, 0, 0);
     }
 }
