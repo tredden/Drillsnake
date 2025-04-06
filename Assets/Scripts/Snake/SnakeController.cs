@@ -29,7 +29,6 @@ public class SnakeController : MonoBehaviour
     
     [SerializeField]
     private GameObject snakeSegmentPrefab;
-
     private List<GameObject> snakeSegments = new List<GameObject>();
 
     private ControlInputs controlInputs;
@@ -75,15 +74,13 @@ public class SnakeController : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             GameObject segment = Instantiate(snakeSegmentPrefab, transform.position, Quaternion.identity);
-//            segment.transform.SetParent(transform);
-//            segment.transform.localPosition = new Vector3(0, -segmentDistance * (i + 1), 0);
             snakeSegments.Add(segment);
 
-            SnakeSegment currentSegment = segment.GetComponent<SnakeSegment>();
+            GameObject currentSegment = segment;
             if (i > 0)
             {
-                SnakeSegment previousSegment = snakeSegments[i - 1].GetComponent<SnakeSegment>();
-                previousSegment.nextSegment = currentSegment;
+                GameObject previousSegment = snakeSegments[i - 1];
+                previousSegment.GetComponent<SnakeSegment>().next = currentSegment;
             }
         }
         Debug.Log("Snake segments created: " + snakeSegments.Count);

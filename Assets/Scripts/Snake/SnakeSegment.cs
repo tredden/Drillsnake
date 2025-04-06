@@ -9,7 +9,10 @@ public class SnakeSegment : MonoBehaviour
     private float segmentLength = 20f;
     
     public Queue<PositionData> positionQueue = new Queue<PositionData>();
-    public SnakeSegment? nextSegment;
+    public GameObject? next;
+
+    private PositionData? beforeTargetDistance;
+    private PositionData? afterTargetDistance;
 
     // Start is called before the first frame update
     void Start()
@@ -25,25 +28,28 @@ public class SnakeSegment : MonoBehaviour
 
     public void OnParentMove(float parentDistanceSinceStart)
     {
-		float moveUpTo = parentDistanceSinceStart - segmentLength;
-        PositionData? nextPositionData = null;
+		float targetDistance = parentDistanceSinceStart - segmentLength;
+        SnakeSegment? nextSegment = next != null ? next.GetComponent<SnakeSegment>() : null;
 
-        while (positionQueue.Count > 0 && positionQueue.Peek().distanceSinceStart < moveUpTo)
+        while (positionQueue.Count > 0 && positionQueue.Peek().distanceSinceStart < targetDistance)
         {
-            nextPositionData = positionQueue.Dequeue();
-            if (nextSegment != null)
-            {
-                nextSegment.positionQueue.Enqueue(nextPositionData.Value);
-            }
+            beforeTargetDistance = afterTargetDistance;
+            afterTargetDistance = positionQueue.Dequeue();
+            nextSegment?.positionQueue.Enqueue(afterTargetDistance.Value);
         }
 
-        if (nextPositionData.HasValue) {
-			transform.position = nextPositionData.Value.position;
-            transform.rotation = Quaternion.Euler(0, 0, nextPositionData.Value.rotation);
-            if (nextSegment != null)
-            {
-				nextSegment.OnParentMove(nextPositionData.Value.distanceSinceStart);
+        if (afterTargetDistance.HasValue) {
+            if (beforeTargetDistance.HasValue) {
+				// Interpolate between the two positions based on the distance
+				float t = (targetDistance - beforeTargetDistance.Value.distanceSinceStart)
+                        / (afterTargetDistance.Value.distanceSinceStart - beforeTargetDistance.Value.distanceSinceStart);
+                transform.position = Vector2.Lerp(beforeTargetDistance.Value.position, afterTargetDistance.Value.position, t);
+                transform.rotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(beforeTargetDistance.Value.rotation, afterTargetDistance.Value.rotation, t));
+            } else {
+			    transform.position = afterTargetDistance.Value.position;
+                transform.rotation = Quaternion.Euler(0, 0, afterTargetDistance.Value.rotation);
             }
+            nextSegment?.OnParentMove(targetDistance);
         }
     }
 }
