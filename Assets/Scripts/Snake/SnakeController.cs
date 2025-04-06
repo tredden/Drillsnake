@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -46,9 +47,14 @@ public class SnakeController : MonoBehaviour
     public float turnSpeed = 180f;
     
     [SerializeField]
+    private float maxExplodeTime = 2f;
+    
+    [SerializeField]
     private GameObject headPrefab;
     [SerializeField]
     private GameObject bodyPrefab;
+    [SerializeField]
+    private GameObject explosionPrefab;
     private List<GameObject> snakeSegments = new List<GameObject>();
     Collider2D drillCollider;
     private ControlInputs controlInputs;
@@ -79,7 +85,7 @@ public class SnakeController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (state == SnakeState.Dead) {
+        if (state == SnakeState.Dead || state == SnakeState.Exploding) {
             speed = 0;
             return;
         }
@@ -136,7 +142,7 @@ public class SnakeController : MonoBehaviour
             timeSinceHeatDamage += Time.deltaTime;
 
             if (currentHeat >= drillStats.maxDrillHeat) {
-                Explode();
+                StartCoroutine(Explode());
             }
         }
     }
@@ -210,14 +216,24 @@ public class SnakeController : MonoBehaviour
         {
             // Explode the snake
             Debug.Log("Snake collided with itself!");
-            Explode();
+            StartCoroutine(Explode());
         }
     }
 
-    public void Explode() {
+    public IEnumerator Explode() {
 		// Explodes the snake from the head down through its tail over time.
-		if (state == SnakeState.Dead) return;
+		if (state == SnakeState.Dead) yield break;
 
+        state = SnakeState.Exploding;
+        float delay;
+        for (int i = 0; i < snakeSegments.Count; i++)
+        {
+            delay = 1f/(i+1);
+            Debug.Log(delay);
+            yield return new WaitForSeconds(delay);
+            Instantiate(explosionPrefab,snakeSegments[i].transform.position,Quaternion.identity);
+            snakeSegments[i].SetActive(false);
+        }
         // TODO: Explode
         deathTime = Time.time;
         state = SnakeState.Dead;
