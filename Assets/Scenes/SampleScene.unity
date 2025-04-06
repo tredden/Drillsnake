@@ -368,7 +368,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 540, y: -14.600006}
+  m_AnchoredPosition: {x: 540, y: -14.600037}
   m_SizeDelta: {x: 200, y: 39.3408}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &238638902
@@ -502,7 +502,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 104.59999, y: -48.90001}
+  m_AnchoredPosition: {x: 104.599976, y: -48.900024}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &265383673
@@ -791,8 +791,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 713194347}
   m_HandleRect: {fileID: 713194346}
   m_Direction: 2
-  m_Value: 1.0000001
-  m_Size: 0.36622262
+  m_Value: 1
+  m_Size: 0.3662226
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -936,9 +936,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.023734178
-    width: 1.0004675
-    height: 0.95233387
+    y: 0
+    width: 1
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -1012,10 +1012,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 1830512961}
   trackingPixelBounds:
-    x: 0
-    y: 0
+    x: 160
+    y: 200
     width: 320
-    height: 180
+    height: 120
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -1494,6 +1494,7 @@ GameObject:
   - component: {fileID: 815817725}
   - component: {fileID: 815817724}
   - component: {fileID: 815817723}
+  - component: {fileID: 815817726}
   m_Layer: 0
   m_Name: MapManager
   m_TagString: Untagged
@@ -1567,13 +1568,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cellPrefab: {fileID: 1583021997617891872, guid: d95dc6f6b5d44684d81007c2db012cff, type: 3}
   seed: 0
-  pixelWidth: 256
-  pixelHeight: 32768
-  chunkScale: 256
+  pixelWidth: 2048
+  pixelHeight: 65536
+  chunkScale: 512
   worldScale: 8
+  yOffset: -65024
   activeTexture: {fileID: 0}
   chunkCoord: {x: 0, y: 0}
   update: 1
+  useGPU: 1
 --- !u!4 &815817725
 Transform:
   m_ObjectHideFlags: 0
@@ -1589,6 +1592,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &815817726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815817722}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ad0573a733e14fcc86b5b2a3b580c15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  terrainMaterial: {fileID: 2100000, guid: c519c7df639304cc78feb48365357593, type: 2}
+  sourceRenderTexture: {fileID: 8400000, guid: 14d1fee5bfb5346f78b50c622ede667a, type: 2}
+  pixelFactor: 8
+  zoom: 1
 --- !u!1001 &863141179
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1784,7 +1803,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 104.6, y: -14.6}
+  m_AnchoredPosition: {x: 104.599976, y: -14.600037}
   m_SizeDelta: {x: 200, y: 39.3408}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1230338361
@@ -2879,8 +2898,8 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 619394802}
-  - {fileID: 519420032}
   - {fileID: 815817725}
+  - {fileID: 519420032}
   - {fileID: 783914399}
   - {fileID: 273854085}
   - {fileID: 1854624839}
