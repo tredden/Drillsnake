@@ -53,7 +53,7 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 return s;
             }
             float vrand(float2 xy, uint s) {
-                return float(hash(hash(hash(s) ^ uint(floor(xy.x))) ^ uint(floor(xy.y)))) / 4294967295.0f;
+                return float(hash(hash(hash(s) ^ uint(int(floor(xy.x)))) ^ uint(int(floor(xy.y))))) / 4294967295.0f;
             }
             float3 fromColor(int c) {
                  uint uc = (uint)c;
