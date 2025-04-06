@@ -50,6 +50,7 @@ public class SnakeController : MonoBehaviour
     [SerializeField]
     private GameObject bodyPrefab;
     private List<GameObject> snakeSegments = new List<GameObject>();
+    Collider2D drillCollider;
     private ControlInputs controlInputs;
     public float speed = 0f;
     public SnakeState state = SnakeState.Alive;
@@ -113,7 +114,7 @@ public class SnakeController : MonoBehaviour
         if (map != null) {
             CarveResults results = map.CarveMap(
                 Mathf.RoundToInt(drillCoord.x), Mathf.RoundToInt(drillCoord.y),
-                 drillStats.drillRadius, drillStats.drillHardness);
+                 drillStats.drillRadius, drillCollider, drillStats.drillHardness);
 
             // Elongate from gold
             int addedGold = Mathf.RoundToInt(results.totalGold); // TODO: should this acc as a float?
@@ -150,6 +151,9 @@ public class SnakeController : MonoBehaviour
             GameObject segment = Instantiate(prefab, parentTransform.position, parentTransform.rotation);
             segment.GetComponent<SnakeSegment>().owner = this;
             snakeSegments.Add(segment);
+            if (i == 0) {
+                drillCollider = segment.transform.GetChild(0).GetComponent<Collider2D>();
+            }
 
             GameObject currentSegment = segment;
             if (i > 0)

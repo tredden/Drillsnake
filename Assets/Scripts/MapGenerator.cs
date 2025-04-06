@@ -381,24 +381,33 @@ public class MapGenerator : MonoBehaviour
         // }
     }
 
-    public CarveResults CarveMap(int x0, int y0, int radius, float drillStrength)
+    public CarveResults CarveMap(int x0, int y0, int radius, Collider2D collider, float drillStrength)
     {
         CarveResults output = new CarveResults();
         List<Texture2D> updatedTextures = new List<Texture2D>();
         int totalCells = 0;
-        for (int xi = -radius; xi <= radius; xi++) {
-            int x = x0 + xi;
+        Vector2 point = Vector2.zero;
+        int xMin = Mathf.FloorToInt(collider.bounds.min.x);
+        int xMax = Mathf.CeilToInt(collider.bounds.max.x);
+        int yMin = Mathf.FloorToInt(collider.bounds.min.y);
+        int yMax = Mathf.CeilToInt(collider.bounds.max.y);
+        for (int xi = xMin; xi <= xMax; xi++) {
+            int x = xi; // x0 + xi;
             if (x < 0 || x >= pixelWidth) {
                 continue;
             }
             int xc = x / chunkScale;
             int xr = x % chunkScale;
-            for (int yi = -radius; yi < radius; yi++) {
-                int y = y0 + yi;
+            for (int yi = yMin; yi < yMax; yi++) {
+                int y = yi; // y0 + yi;
                 if (y < 0 || y >= pixelHeight) {
                     continue;
                 }
-                if (xi*xi + yi*yi > radius*radius) {
+                //if (xi*xi + yi*yi > radius*radius) {
+                //    continue;
+                //}
+                point.Set(x + .5f, y + .5f);
+                if (!collider.OverlapPoint(point)) {
                     continue;
                 }
                 int yc = y / chunkScale;
