@@ -14,6 +14,8 @@ public class MapGenerator : MonoBehaviour
 
     [SerializeField]
     int chunkScale = 1024;
+    [SerializeField]
+    int worldScale = 16;
 
     Texture2D[,] chunks;
 
@@ -109,7 +111,7 @@ public class MapGenerator : MonoBehaviour
     // >=.5 for rock
     float SampleDirtThickness(int x, int y)
     {
-        Vector2 uv = new Vector2(x, -y);
+        Vector2 uv = new Vector2(x, -y) / worldScale;
 
         float dens = density(uv);
 
@@ -126,7 +128,7 @@ public class MapGenerator : MonoBehaviour
     // provides values for gold
     float SampleOreValue(int x, int y)
     {
-        Vector2 uv = new Vector2(x, -y);
+        Vector2 uv = new Vector2(x, -y) / worldScale;
         float dens = density(uv);
 
         Vector2 c0 = new Vector2(-0.1009521484375f, -0.9563293457031254f);
