@@ -4,7 +4,11 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    
+    [SerializeField]
+    int drillRadius;
+    [SerializeField]
+    Vector2Int drillOffset;
+
 	private SnakeController snakeController;
 
     // Start is called before the first frame update
@@ -26,5 +30,11 @@ public class PlayerController : MonoBehaviour
         controlInputs.targetSpeed = 1 + Input.GetAxis("Vertical");
         
         snakeController.SetControlInputs(controlInputs);
+
+        Vector3 drillCoord = transform.TransformPoint(new Vector3(drillOffset.x, drillOffset.y, 0f));
+        MapGenerator map = MapGenerator.GetInstance();
+        if (map != null) {
+            map.CarveMap(Mathf.RoundToInt(drillCoord.x), Mathf.RoundToInt(drillCoord.y), drillRadius);
+        }
     }
 }

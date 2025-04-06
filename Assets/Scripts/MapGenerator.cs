@@ -2,8 +2,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public struct CarveResults
+{
+    public bool didCarve;
+    public float maxThickness;
+    public float totalGold;
+    public float totalHazard;
+
+    public CarveResults(float startingThickness = 0f, float startingGold = 0f, float startingHazard = 0f)
+    {
+        didCarve = false;
+        maxThickness = startingThickness;
+        totalGold = startingGold;
+        totalHazard = startingHazard;
+    }
+}
+
 public class MapGenerator : MonoBehaviour
 {
+    static MapGenerator instance;
+
     [SerializeField]
     uint seed;
 
@@ -29,11 +47,22 @@ public class MapGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (instance == null) {
+            instance = this;
+        } else {
+            GameObject.DestroyImmediate(this);
+            return;
+        }
         if (seed == 0) {
             GenerateSeed();
         }
         AllocateTextures();
         GenerateAllTextures();
+    }
+
+    public static MapGenerator GetInstance()
+    {
+        return instance;
     }
 
     #region GENERATION_LOGIC
@@ -215,13 +244,56 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
+    public CarveResults CarveMap(int x0, int y0, int radius)
+    {
+        CarveResults output = new CarveResults();
+        List<Texture2D> updatedTextures = new List<Texture2D>();
+        for (int xi = -radius; xi <= radius; xi++) {
+            int x = x0 + xi;
+            if (x < 0 || x >= pixelWidth) {
+                continue;
+            }
+            int xc = x / chunkScale;
+            int xr = x % chunkScale;
+            for (int yi = -radius; yi < radius; yi++) {
+                int y = y0 + yi;
+                if (y < 0 || y >= pixelHeight) {
+                    continue;
+                }
+                if (xi*xi + yi*yi > radius*radius) {
+                    continue;
+                }
+                int yc = y / chunkScale;
+                int yr = y % chunkScale;
+                Texture2D texC = chunks[xc, yc];
+                Color c = texC.GetPixel(xr, yr);
+                if (c.b != 0 || c.g != 0) {
+                    output.didCarve = true;
+                    output.maxThickness = Mathf.Max(output.maxThickness, c.b);
+                    output.totalGold += c.g;
+                    output.totalHazard += c.r;
+                    c.b = 0; // rock
+                    c.g = 0; // gold
+                    texC.SetPixel(xr, yr, c);
+                    if (!updatedTextures.Contains(texC)) {
+                        updatedTextures.Add(texC);
+                    }
+                }
+            } // end for y
+        } // end for x
+        foreach (Texture2D tex in updatedTextures) {
+            tex.Apply(false, false);
+        }
+        return output;
+    }
+
     // Update is called once per frame
     void Update()
     {
         if (update) {
             activeTexture = chunks[chunkCoord.x, chunkCoord.y];
             SpriteRenderer render = GetComponent<SpriteRenderer>();
-            render.sprite = Sprite.Create(activeTexture, new Rect(0, 0, chunkScale, chunkScale), Vector2.one * .5f, 1f);
+            render.sprite = Sprite.Create(activeTexture, new Rect(0, 0, chunkScale, chunkScale), Vector2.zero, 1f);
             update = false;
         }
     }
