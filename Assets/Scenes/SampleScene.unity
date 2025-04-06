@@ -131,6 +131,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -9100898603482006569, guid: 7a66281a4f5da40fb81d97283c0b699f, type: 3}
+      propertyPath: drillRadius
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 110429356578860739, guid: 7a66281a4f5da40fb81d97283c0b699f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

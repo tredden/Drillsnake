@@ -46,9 +46,6 @@ public class SnakeController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Tmp test
-        SetLength(Mathf.RoundToInt(Mathf.Abs(10 - Time.time % 20)));
-
         // Apply control inputs
         float turn = controlInputs.turn * turnSpeed * Time.deltaTime;
         transform.Rotate(0, 0, -turn);

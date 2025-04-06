@@ -5,9 +5,11 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField]
-    int drillRadius;
+    int drillRadius = 8;
     [SerializeField]
     Vector2Int drillOffset;
+
+    int gold = 0;
 
 	private SnakeController snakeController;
 
@@ -34,7 +36,11 @@ public class PlayerController : MonoBehaviour
         Vector3 drillCoord = transform.TransformPoint(new Vector3(drillOffset.x, drillOffset.y, 0f));
         MapGenerator map = MapGenerator.GetInstance();
         if (map != null) {
-            map.CarveMap(Mathf.RoundToInt(drillCoord.x), Mathf.RoundToInt(drillCoord.y), drillRadius);
+            CarveResults results = map.CarveMap(
+                Mathf.RoundToInt(drillCoord.x), Mathf.RoundToInt(drillCoord.y), drillRadius);
+
+            gold += Mathf.RoundToInt(results.totalGold);
+            snakeController.SetLength(gold / 10 + 3);
         }
     }
 }
