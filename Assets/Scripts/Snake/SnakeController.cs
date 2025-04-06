@@ -105,6 +105,7 @@ public class SnakeController : MonoBehaviour
             return;
         }
 
+        length++; // +1 for the head
         if (length < snakeSegments.Count)
         {
 			SnakeSegment newLastSegment = snakeSegments[length].GetComponent<SnakeSegment>();
