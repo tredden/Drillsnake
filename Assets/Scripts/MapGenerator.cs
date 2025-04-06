@@ -6,6 +6,7 @@ public struct CarveResults
 {
     public bool didCarve;
     public float maxThickness;
+    public float averageThickness;
     public float totalGold;
     public float totalHazard;
 
@@ -13,6 +14,7 @@ public struct CarveResults
     {
         didCarve = false;
         maxThickness = startingThickness;
+        averageThickness = startingThickness;
         totalGold = startingGold;
         totalHazard = startingHazard;
     }
@@ -58,9 +60,10 @@ public class MapGenerator : MonoBehaviour
     [SerializeField]
     int worldScale = 16;
 
+    BitArray[,] carveChunks;
     Texture2D[,] chunks;
     [SerializeField]
-    List<Texture2D> textures;
+    Stack<Texture2D> texturePool;
     SpriteCell[,] spriteChunks;
     // List<SpriteCell> spriteCells;
 
@@ -82,8 +85,8 @@ public class MapGenerator : MonoBehaviour
             GenerateSeed();
         }
         AllocateTextures();
-        GenerateSpriteCells();
-        GenerateAllTextures();
+        // GenerateSpriteCells();
+        // GenerateAllTextures();
         if (instance != null) {
             GameObject.DestroyImmediate(this);
             return;
@@ -170,12 +173,9 @@ public class MapGenerator : MonoBehaviour
 
     // provides values for rock and dirt
     // >=.5 for rock
-    float SampleDirtThickness(int x, int y)
+    float SampleDirtThickness(Vector2 uv, float dens)
     {
-        Vector2 uv = new Vector2(x, -y) / worldScale;
-
-        float dens = density(uv);
-
+        return .3f;
         if (dens < 0) {
             return 0f;
         } else {
@@ -187,13 +187,11 @@ public class MapGenerator : MonoBehaviour
     }
 
     // provides values for gold
-    float SampleOreValue(int x, int y)
+    float SampleOreValue(Vector2 uv, float dens)
     {
-        Vector2 uv = new Vector2(x, -y) / worldScale;
-        float dens = density(uv);
-
+        return 0f;
         Vector2 c0 = new Vector2(-0.1009521484375f, -0.9563293457031254f);
-        Vector2 c = c0 + (new Vector2(valnoise(uv * .005f, 10u), valnoise(uv * .005f, 11u)) * 2f- Vector2.one + (new Vector2(valnoise(uv * .02f, 12u), valnoise(uv * .02f, 13u)) - .5f*Vector2.one)) * .1f;
+        Vector2 c = c0 + (new Vector2(valnoise(uv * .005f, 10u), valnoise(uv * .005f, 11u)) * 2f - Vector2.one + (new Vector2(valnoise(uv * .02f, 12u), valnoise(uv * .02f, 13u)) - .5f*Vector2.one)) * .1f;
         Vector2 z = c;
         for (int i = 0; i < 13; i++) {
             z = cmult(z, z) + c;
@@ -209,7 +207,7 @@ public class MapGenerator : MonoBehaviour
         chunksize *= chunksize;
         chunksize *= chunksize;
         chunksize -= .5f;
-        chunksize *= 400f* .5f * Mathf.Max(0f, 1f- 100f/ dens);
+        chunksize *= 400f * .5f * Mathf.Max(0f, 1f- 100f/ dens);
 
         if (chunksize > 0f) {
             orevein += Mathf.Sqrt(chunksize - Mathf.Max((orechunk - uv).sqrMagnitude - chunksize, 0f));
@@ -223,7 +221,7 @@ public class MapGenerator : MonoBehaviour
     }
 
     // provides values for lava
-    float SampleHazardValue(int x, int y)
+    float SampleHazardValue(Vector2 uv, float dens)
     {
         return 0f;// x / (float)chunkScale;
     }
@@ -232,28 +230,59 @@ public class MapGenerator : MonoBehaviour
 
     void AllocAndGenerateChunkTexture(int cx, int cy)
     {
-        Texture2D texture = new Texture2D(chunkScale, chunkScale, TextureFormat.RGBA32, false);
-        GenerateChunkTexture(cx * chunkScale, cy * chunkScale, texture);
+        Texture2D texture;
+        if (texturePool.Count > 0) {
+            texture = texturePool.Pop();
+        } else {
+            texture = new Texture2D(chunkScale, chunkScale, TextureFormat.RGBA32, false);
+        }
+        BitArray carveHistory = carveChunks[cx, cy];
+        GenerateChunkTexture(cx * chunkScale, cy * chunkScale, texture, carveHistory);
         chunks[cx, cy] = texture;
+        if (carveHistory == null) {
+            carveHistory = new BitArray(chunkScale * chunkScale);
+            carveChunks[cx, cy] = carveHistory;
+        }
     }
 
-    void GenerateChunkTexture(int x0, int y0, Texture2D texture)
+    void GenerateChunkTexture(int x0, int y0, Texture2D texture, BitArray carveHistory)
     {
-        Color32[] colors = new Color32[chunkScale * chunkScale];
+        bool hasCarveHistory = carveHistory != null;
+        Color[] colors = new Color[chunkScale * chunkScale];
         int i = 0;
+        int x;
+        int y;
+        float r;
+        float g;
+        float b;
+        Color c;
+        Vector2 uv;
+        bool inBounds;
         for (int yi = 0; yi < chunkScale; yi++) {
-            int y = yi + y0;
+            y = yi + y0;
             for (int xi = 0; xi < chunkScale; xi++) {
-                int x = xi + x0;
-                bool inBounds = x >= 0 && x < pixelWidth && y >= 0 && y < pixelHeight;
-                colors[i].a = (byte)(inBounds ? 255 : 0);
-                colors[i].r = (byte)(inBounds ? SampleHazardValue(x, y) * 255: 0);
-                colors[i].g = (byte)(inBounds ? SampleOreValue(x, y) * 255 : 0);
-                colors[i].b = (byte)(inBounds ? SampleDirtThickness(x, y) * 255: 0);
+                x = xi + x0;
+                inBounds = x >= 0 && x < pixelWidth && y >= 0 && y < pixelHeight;
+                if (!inBounds) {
+                    c = Color.clear;
+                } else {
+                    uv = new Vector2(x, -y) / worldScale;
+                    float dens = 0f; // density(uv);
+                    r = SampleHazardValue(uv, dens);
+                    if (hasCarveHistory && carveHistory[i]) {
+                        g = 0;
+                        b = 0;
+                    } else {
+                        g = SampleOreValue(uv, dens);
+                        b = SampleDirtThickness(uv, dens);
+                    }
+                    c = new Color(r, g, b, 1f);
+                }
+                colors[i] = c;
                 i++;
             }
         }
-        texture.SetPixels32(colors, 0);
+        texture.SetPixels(colors, 0);
         texture.Apply(false, false);
     }
 
@@ -267,8 +296,9 @@ public class MapGenerator : MonoBehaviour
         int xChunks = (pixelWidth + (chunkScale - 1)) / chunkScale;
         int yChunks = (pixelHeight + (chunkScale - 1)) / chunkScale;
         chunks = new Texture2D[xChunks, yChunks];
-        textures = new List<Texture2D>();
+        texturePool = new Stack<Texture2D>();
         spriteChunks = new SpriteCell[xChunks, yChunks];
+        carveChunks = new BitArray[xChunks, yChunks];
         for (int xc = 0; xc < xChunks; xc++) {
             for (int yc = 0; yc < yChunks; yc++) {
                 // Texture2D tex = new Texture2D(chunkScale, chunkScale, TextureFormat.RGBA32, false);
@@ -326,18 +356,22 @@ public class MapGenerator : MonoBehaviour
                 int yc = y / chunkScale;
                 int yr = y % chunkScale;
                 Texture2D texC = chunks[xc, yc];
-                if (texC == null) {
+                BitArray carveHistory = carveChunks[xc, yc];
+                if (texC == null || carveHistory == null) {
                     FixSpriteChunk(xc, yc);
                     texC = chunks[xc, yc];
+                    carveHistory = carveChunks[xc, yc];
                 }
                 Color c = texC.GetPixel(xr, yr);
                 if (c.b != 0 || c.g != 0) {
                     output.didCarve = true;
                     output.maxThickness = Mathf.Max(output.maxThickness, c.b);
+                    output.averageThickness += c.b;
                     output.totalGold += c.g;
                     output.totalHazard += c.r;
                     c.b = 0; // rock
                     c.g = 0; // gold
+                    carveHistory[yr * chunkScale + xr] = true;
                     texC.SetPixel(xr, yr, c);
                     if (!updatedTextures.Contains(texC)) {
                         updatedTextures.Add(texC);
@@ -345,6 +379,7 @@ public class MapGenerator : MonoBehaviour
                 }
             } // end for y
         } // end for x
+        output.averageThickness /= Mathf.PI * radius * radius;
         foreach (Texture2D tex in updatedTextures) {
             tex.Apply(false, false);
         }
@@ -368,6 +403,24 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
+    void UnloadSpriteChunk(int cx, int cy)
+    {
+        if (cx < 0 || cx > chunks.GetLength(0) - 1) {
+            return;
+        }
+        if (cy < 0 || cy > chunks.GetLength(1) - 1) {
+            return;
+        }
+        Texture2D tex = chunks[cx, cy];
+        if (tex != null) {
+            texturePool.Push(tex);
+            chunks[cx, cy] = null;
+        }
+        if (spriteChunks[cx, cy] != null && spriteChunks[cx, cy].render.sprite != null) {
+            spriteChunks[cx, cy].render.sprite = null;
+        }
+    }
+
     public void UpdateCameraBounds(float minX, float maxX, float minY, float maxY)
     {
         int cx0 = (int)Mathf.Clamp(minX / chunkScale, 0, chunks.GetLength(0) - 1);
@@ -375,7 +428,19 @@ public class MapGenerator : MonoBehaviour
         int cy0 = (int)Mathf.Clamp((minY / chunkScale), 0, chunks.GetLength(1) - 1);
         int cy1 = (int)Mathf.Clamp((maxY / chunkScale), 0, chunks.GetLength(1) - 1);
 
-        Debug.Log("Cam Bounds -- cx0: " + cx0 + ", cx1: " + cx1 + ", cy0: " + cy0 + " cy1: " + cy1);
+        //Debug.Log("Cam Bounds -- cx0: " + cx0 + ", cx1: " + cx1 + ", cy0: " + cy0 + " cy1: " + cy1);
+
+        int poolBuffer = 1;
+
+        for (int cx = 0; cx < chunks.GetLength(0); cx++) {
+            bool xFreeable = cx < cx0 - poolBuffer || cx > cx1 + poolBuffer;
+            for (int cy = 0; cy < chunks.GetLength(1); cy++) {
+                bool yFreeable = cy < cy0 - poolBuffer || cy > cy1 + poolBuffer; 
+                if (xFreeable || yFreeable) {
+                    UnloadSpriteChunk(cx, cy);
+                }
+            }
+        }
 
         for (int cx = cx0; cx <= cx1; cx++) {
             for (int cy = cy0; cy <= cy1; cy++) {

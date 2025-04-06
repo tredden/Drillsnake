@@ -1,10 +1,4 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
-using Unity.VisualScripting;
-using UnityEditor.PackageManager.Requests;
-using UnityEditor.Rendering;
 using UnityEngine;
 
 public struct ControlInputs
@@ -16,10 +10,19 @@ public struct ControlInputs
 [System.Serializable]
 public struct DrillStats
 {
-    public float drillRadius;
+    public int drillRadius;
+    public Vector2Int drillOffset;
     public float drillHardness;
 }
 
+
+[System.Serializable]
+public enum SnakeState
+{
+    Alive,
+    Exploding,
+    Dead,
+}
 
 public class SnakeController : MonoBehaviour
 {
@@ -29,6 +32,7 @@ public class SnakeController : MonoBehaviour
     private int segments = 5;
     [SerializeField]
     private float maxSpeed = 128f;
+    
     [SerializeField]
     private float acceleration = 48f;
 
@@ -40,14 +44,15 @@ public class SnakeController : MonoBehaviour
     [SerializeField]
     private GameObject bodyPrefab;
     private List<GameObject> snakeSegments = new List<GameObject>();
-
     private ControlInputs controlInputs;
-    private float speed = 0f;
-    private bool dead = false;
-    private float deathTime = 0f;
+    public float speed = 0f;
+    public SnakeState state = SnakeState.Alive;
+    public float deathTime = 0f;
 
     // The distance traveled since the snake started
     private float distanceSinceStart = 0f;
+
+    public int gold = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -58,13 +63,9 @@ public class SnakeController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (dead) {
+        if (state == SnakeState.Dead) {
             speed = 0;
-            if (Time.time - deathTime > 2) {
-                Reset();
-            } else {
-                return;
-            }
+            return;
         }
         // Apply control inputs
         float turn = controlInputs.turn * turnSpeed * Time.deltaTime;
@@ -87,6 +88,26 @@ public class SnakeController : MonoBehaviour
             distanceSinceStart = distanceSinceStart,
         });
         segment.OnParentMove(distanceSinceStart);
+
+        // Carve the map
+        // TODO: Move this into the SnakeController?
+        Vector3 drillCoord = transform.TransformPoint(
+            new Vector3(drillStats.drillOffset.x, drillStats.drillOffset.y, 0f));
+        MapGenerator map = MapGenerator.GetInstance();
+        if (map != null) {
+            CarveResults results = map.CarveMap(
+                Mathf.RoundToInt(drillCoord.x), Mathf.RoundToInt(drillCoord.y),
+                 drillStats.drillRadius);
+
+            // Elongate from gold
+            gold += Mathf.RoundToInt(results.totalGold);
+            this.SetLength(gold / 100 + 3);
+
+            // Explode when hitting rocks
+            if (results.maxThickness > drillStats.drillHardness) {
+				Explode();
+            }
+        }
     }
 
     private void AppendSegments(int add)
@@ -146,17 +167,17 @@ public class SnakeController : MonoBehaviour
 
     public void Explode() {
 		// Explodes the snake from the head down through its tail over time.
-		if (!dead) {
-            deathTime = Time.time;
-        }
+		if (state == SnakeState.Dead) return;
 
-		dead = true;
+		// TODO: Explode
+        deathTime = Time.time;
+        state = SnakeState.Dead;
         Debug.Log("Snake exploded!");
     }
 
     public void Reset() {
         // Reset the snake to its initial state
-        dead = false;
+        state = SnakeState.Alive;
         distanceSinceStart = 0f;
         speed = 0f;
 
