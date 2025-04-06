@@ -45,6 +45,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4bc0563092454935812beb15c7406c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  drillStats:
+    drillRadius: 0
+    drillHardness: 0.5
   segments: 5
   maxSpeed: 128
   acceleration: 48
