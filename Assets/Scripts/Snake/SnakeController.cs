@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using Unity.VisualScripting;
+using UnityEditor.PackageManager.Requests;
 using UnityEditor.Rendering;
 using UnityEngine;
 
@@ -12,9 +13,18 @@ public struct ControlInputs
     public float targetSpeed; // 0 to 1. 0 is stop, 1 is full speed.
 }
 
+[System.Serializable]
+public struct DrillStats
+{
+    public float drillRadius;
+    public float drillHardness;
+}
+
 
 public class SnakeController : MonoBehaviour
 {
+    [SerializeField]
+    public DrillStats drillStats;
     [SerializeField]
     private int segments = 5;
     [SerializeField]
@@ -33,6 +43,8 @@ public class SnakeController : MonoBehaviour
 
     private ControlInputs controlInputs;
     private float speed = 0f;
+    private bool dead = false;
+    private float deathTime = 0f;
 
     // The distance traveled since the snake started
     private float distanceSinceStart = 0f;
@@ -46,6 +58,14 @@ public class SnakeController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (dead) {
+            speed = 0;
+            if (Time.time - deathTime > 2) {
+                Reset();
+            } else {
+                return;
+            }
+        }
         // Apply control inputs
         float turn = controlInputs.turn * turnSpeed * Time.deltaTime;
         transform.Rotate(0, 0, -turn);
@@ -122,6 +142,29 @@ public class SnakeController : MonoBehaviour
     public void SetControlInputs(ControlInputs inputs)
     {
         controlInputs = inputs;
-        // TODO: Record this in the history if it's different.
+    }
+
+    public void Explode() {
+		// Explodes the snake from the head down through its tail over time.
+		if (!dead) {
+            deathTime = Time.time;
+        }
+
+		dead = true;
+        Debug.Log("Snake exploded!");
+    }
+
+    public void Reset() {
+        // Reset the snake to its initial state
+        dead = false;
+        distanceSinceStart = 0f;
+        speed = 0f;
+
+        foreach (GameObject segment in snakeSegments)
+        {
+            Destroy(segment);
+        }
+        snakeSegments.Clear();
+        SetLength(segments);
     }
 }

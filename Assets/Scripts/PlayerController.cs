@@ -33,14 +33,22 @@ public class PlayerController : MonoBehaviour
         
         snakeController.SetControlInputs(controlInputs);
 
+        // TODO: Move this into the SnakeController?
         Vector3 drillCoord = transform.TransformPoint(new Vector3(drillOffset.x, drillOffset.y, 0f));
         MapGenerator map = MapGenerator.GetInstance();
         if (map != null) {
             CarveResults results = map.CarveMap(
                 Mathf.RoundToInt(drillCoord.x), Mathf.RoundToInt(drillCoord.y), drillRadius);
 
+            // Elongate from gold
             gold += Mathf.RoundToInt(results.totalGold);
-            snakeController.SetLength(gold / 10 + 3);
+            snakeController.SetLength(gold / 100 + 3);
+
+            // Explode when hitting rocks
+            DrillStats drillStats = snakeController.drillStats;
+            if (results.maxThickness > drillStats.drillHardness) {
+				snakeController.Explode();
+            }
         }
     }
 }
