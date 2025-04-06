@@ -478,6 +478,7 @@ GameObject:
   - component: {fileID: 815817725}
   - component: {fileID: 815817724}
   - component: {fileID: 815817723}
+  - component: {fileID: 815817726}
   m_Layer: 0
   m_Name: MapManager
   m_TagString: Untagged
@@ -551,14 +552,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cellPrefab: {fileID: 1583021997617891872, guid: d95dc6f6b5d44684d81007c2db012cff, type: 3}
   seed: 0
-  pixelWidth: 256
-  pixelHeight: 32768
-  chunkScale: 256
+  pixelWidth: 2048
+  pixelHeight: 65536
+  chunkScale: 512
   worldScale: 8
-  textures: []
   activeTexture: {fileID: 0}
   chunkCoord: {x: 0, y: 0}
   update: 1
+  useGPU: 1
 --- !u!4 &815817725
 Transform:
   m_ObjectHideFlags: 0
@@ -574,6 +575,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &815817726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815817722}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ad0573a733e14fcc86b5b2a3b580c15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  terrainMaterial: {fileID: 2100000, guid: c519c7df639304cc78feb48365357593, type: 2}
+  sourceRenderTexture: {fileID: 8400000, guid: 14d1fee5bfb5346f78b50c622ede667a, type: 2}
+  pixelFactor: 8
+  zoom: 1
 --- !u!4 &1830512961 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 110429356578860739, guid: 7a66281a4f5da40fb81d97283c0b699f, type: 3}

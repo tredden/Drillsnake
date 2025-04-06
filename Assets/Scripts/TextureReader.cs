@@ -32,8 +32,8 @@ public class TextureReader : MonoBehaviour
     private bool requestPending = false;
     Stopwatch requestStopwatch = new Stopwatch();
 
-    [SerializeField]
-    bool generating = false;
+    //[SerializeField]
+    //bool generating = false;
 
 
     // Optional: Control shader parameters from script
@@ -44,9 +44,9 @@ public class TextureReader : MonoBehaviour
     int activeX = 0;
     int activeY = 0;
     int activeChunkScale = 512;
-    Texture2D activeTargetTexture;
+    Texture2D activeTargetTexture = null;
 
-    List<TerrainChunkQueueItem> chunkQueue;
+    List<TerrainChunkQueueItem> chunkQueue = new List<TerrainChunkQueueItem>();
 
     static TextureReader instance;
 
@@ -88,6 +88,7 @@ public class TextureReader : MonoBehaviour
                 i--;
             }
         }
+        Debug.Log("Queue is now " + chunkQueue.Count + " chunks deep with scale " + chunkScale);
         chunkQueue.Add(new TerrainChunkQueueItem(x, y, chunkScale, handle));
     }
 
@@ -186,6 +187,7 @@ public class TextureReader : MonoBehaviour
                     Debug.Log("Texture data copied to CPU storage, safe to reuse texture");
                     // send back to get carve history applied on top by CPU before render with sprite
                     MapGenerator.GetInstance().CarveOnFinishTexture(activeX, activeY, activeChunkScale, activeTargetTexture);
+                    chunkQueue.RemoveAt(0);
                 } else {
                     Debug.LogWarning("Received an empty buffer from GPU readback.");
                 }

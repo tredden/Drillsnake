@@ -178,7 +178,6 @@ public class MapGenerator : MonoBehaviour
     // >=.5 for rock
     float SampleDirtThickness(Vector2 uv, float dens)
     {
-        return .3f;
         if (dens < 0) {
             return 0f;
         } else {
@@ -192,7 +191,6 @@ public class MapGenerator : MonoBehaviour
     // provides values for gold
     float SampleOreValue(Vector2 uv, float dens)
     {
-        return 0f;
         Vector2 c0 = new Vector2(-0.1009521484375f, -0.9563293457031254f);
         Vector2 c = c0 + (new Vector2(valnoise(uv * .005f, 10u), valnoise(uv * .005f, 11u)) * 2f - Vector2.one + (new Vector2(valnoise(uv * .02f, 12u), valnoise(uv * .02f, 13u)) - .5f*Vector2.one)) * .1f;
         Vector2 z = c;
@@ -270,7 +268,7 @@ public class MapGenerator : MonoBehaviour
                     x = xi + x0;
                     inBounds = x >= 0 && x < pixelWidth && y >= 0 && y < pixelHeight;
                     uv = new Vector2(x, -y) / worldScale;
-                    float dens = 0f; // density(uv);
+                    float dens = density(uv);
                     r = SampleHazardValue(uv, dens);
                     if (hasCarveHistory && carveHistory[i]) {
                         g = 0;
@@ -468,19 +466,20 @@ public class MapGenerator : MonoBehaviour
 
     public void UpdateCameraBounds(float minX, float maxX, float minY, float maxY)
     {
-        int cx0 = (int)Mathf.Clamp(minX / chunkScale, 0, chunks.GetLength(0) - 1);
-        int cx1 = (int)Mathf.Clamp((maxX / chunkScale), 0, chunks.GetLength(0) - 1);
-        int cy0 = (int)Mathf.Clamp((minY / chunkScale), 0, chunks.GetLength(1) - 1);
-        int cy1 = (int)Mathf.Clamp((maxY / chunkScale), 0, chunks.GetLength(1) - 1);
+        int genBuffer = 1;
+        int keepBuffer = 3;
+
+        int cx0 = (int)Mathf.Clamp(minX / chunkScale - genBuffer, 0, chunks.GetLength(0) - 1);
+        int cx1 = (int)Mathf.Clamp(maxX / chunkScale + genBuffer, 0, chunks.GetLength(0) - 1);
+        int cy0 = (int)Mathf.Clamp(minY / chunkScale - genBuffer, 0, chunks.GetLength(1) - 1);
+        int cy1 = (int)Mathf.Clamp(maxY / chunkScale + genBuffer, 0, chunks.GetLength(1) - 1);
 
         //Debug.Log("Cam Bounds -- cx0: " + cx0 + ", cx1: " + cx1 + ", cy0: " + cy0 + " cy1: " + cy1);
 
-        int poolBuffer = 1;
-
         for (int cx = 0; cx < chunks.GetLength(0); cx++) {
-            bool xFreeable = cx < cx0 - poolBuffer || cx > cx1 + poolBuffer;
+            bool xFreeable = cx < cx0 - keepBuffer || cx > cx1 + keepBuffer;
             for (int cy = 0; cy < chunks.GetLength(1); cy++) {
-                bool yFreeable = cy < cy0 - poolBuffer || cy > cy1 + poolBuffer; 
+                bool yFreeable = cy < cy0 - keepBuffer || cy > cy1 + keepBuffer; 
                 if (xFreeable || yFreeable) {
                     UnloadSpriteChunk(cx, cy);
                 }

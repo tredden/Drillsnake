@@ -154,9 +154,9 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 // Select soil colors
                 // float3 dsoil, msoil, lsoil;
 
-                float3 dsoil = float3(0, 0, .1f);
-                float3 msoil = float3(0, 0, .2f);
-                float3 lsoil = float3(0, 0, .3f);
+                float3 dsoil = float3(0, 0, .3f);
+                float3 msoil = float3(0, 0, .4f);
+                float3 lsoil = float3(0, 0, .45f);
 
                 float3 drock = float3(0, 0, 1.0f);
                 float3 mrock = float3(0, 0, .9f);
