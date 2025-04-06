@@ -87,7 +87,7 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                  float2 rocks_cell = floor(p * 0.1f); float2 rocks_pos = voronoiNearest(p * 0.1f, 1u);
                  float d = length(rocks_pos - p * 0.1f); float r = vrand(rocks_cell, 3u) * 0.2f;
                  float noise_detail = valnoise(p * 0.1f, 5u) * 7.0f; float noise_broad = valnoise(p * 0.01f, 6u) * 30.0f;
-                 return -p.y + (d < r ? (r - d) * 5.0f : 0.0f) + noise_detail + noise_broad;
+                 return p.y + (d < r ? (r - d) * 5.0f : 0.0f) + noise_detail + noise_broad;
             }
             float2 cmult(float2 a, float2 b) { return float2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x); }
             float2 mandelhash_smooth(float2 c, int iters) {
@@ -122,6 +122,7 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 // Apply offset and floor for pixelated grid effect
                 float2 uv = floor(i.uv * _ViewRect.zw + _ViewRect.xy) / effectivePixelFactor;
                 // *** END OF MODIFIED UV CALCULATION ***
+                uv = float2(uv.x, -uv.y);
 
                 // Calculate density
                 float dens = density(uv);

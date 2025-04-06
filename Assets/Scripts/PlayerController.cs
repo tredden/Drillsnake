@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour
         if (snakeController.state == SnakeState.Dead && (Time.time - snakeController.deathTime > 0.3f))
         {
             snakeController.Reset();
-            snakeController.transform.position = new Vector3(0, 0, 0);
+            snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
         }
     }
 
@@ -42,6 +42,6 @@ public class PlayerController : MonoBehaviour
         snakeController.gold = 0;
         snakeController.state = SnakeState.Alive;
         snakeController.speed = 0f;
-        snakeController.transform.position = new Vector3(0, 0, 0);
+        snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
     }
 }

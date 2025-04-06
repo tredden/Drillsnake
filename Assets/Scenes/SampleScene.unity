@@ -556,6 +556,7 @@ MonoBehaviour:
   pixelHeight: 65536
   chunkScale: 512
   worldScale: 8
+  yOffset: -65024
   activeTexture: {fileID: 0}
   chunkCoord: {x: 0, y: 0}
   update: 1

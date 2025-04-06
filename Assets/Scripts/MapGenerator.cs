@@ -59,6 +59,8 @@ public class MapGenerator : MonoBehaviour
     int chunkScale = 1024;
     [SerializeField]
     int worldScale = 16;
+    [SerializeField]
+    int yOffset;
 
     BitArray[,] carveChunks;
     Texture2D[,] chunks;
@@ -238,7 +240,7 @@ public class MapGenerator : MonoBehaviour
             texture = new Texture2D(chunkScale, chunkScale, TextureFormat.RGBA32, false);
         }
         BitArray carveHistory = carveChunks[cx, cy];
-        GenerateChunkTexture(cx * chunkScale, cy * chunkScale, texture, carveHistory);
+        GenerateChunkTexture(cx * chunkScale, cy * chunkScale + yOffset, texture, carveHistory);
         chunks[cx, cy] = texture;
         if (carveHistory == null) {
             carveHistory = new BitArray(chunkScale * chunkScale);
@@ -266,7 +268,7 @@ public class MapGenerator : MonoBehaviour
                 y = yi + y0;
                 for (int xi = 0; xi < chunkScale; xi++) {
                     x = xi + x0;
-                    inBounds = x >= 0 && x < pixelWidth && y >= 0 && y < pixelHeight;
+                    inBounds = x >= 0 && x < pixelWidth && y >= 0 + yOffset && y < pixelHeight + yOffset;
                     uv = new Vector2(x, -y) / worldScale;
                     float dens = density(uv);
                     r = SampleHazardValue(uv, dens);
@@ -290,7 +292,7 @@ public class MapGenerator : MonoBehaviour
     public void CarveOnFinishTexture(int x0, int y0, int chunkScale, Texture2D texture)
     {
         int cx = x0 / chunkScale;
-        int cy = y0 / chunkScale;
+        int cy = (y0 - yOffset) / chunkScale;
 
         if (cx < 0 || cx > chunks.GetLength(0) - 1 || cy < 0 || cy > chunks.GetLength(1)) {
             return;
@@ -309,7 +311,7 @@ public class MapGenerator : MonoBehaviour
             y = yi + y0;
             for (int xi = 0; xi < chunkScale; xi++) {
                 x = xi + x0;
-                inBounds = x >= 0 && x < pixelWidth && y >= 0 && y < pixelHeight;
+                inBounds = x >= 0 && x < pixelWidth && y >= 0 + yOffset && y < pixelHeight + yOffset;
                 if (!inBounds) {
                     c = Color.clear;
                     colors[i] = c;
@@ -427,6 +429,11 @@ public class MapGenerator : MonoBehaviour
             tex.Apply(false, false);
         }
         return output;
+    }
+
+    public Vector3 GetTargetSpawnPos()
+    {
+        return new Vector3(pixelWidth / 2f, pixelHeight - chunkScale / 2f, 0f);
     }
 
     void FixSpriteChunk(int cx, int cy)
