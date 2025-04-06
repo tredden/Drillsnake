@@ -25,7 +25,7 @@ public class MapGenerator : MonoBehaviour
 
     class SpriteCell
     {
-        SpriteRenderer render;
+        public SpriteRenderer render;
         public int cx = -1;
         public int cy = -1;
 
@@ -230,8 +230,18 @@ public class MapGenerator : MonoBehaviour
 
 #endregion
 
+    void AllocAndGenerateChunkTexture(int cx, int cy)
+    {
+        Texture2D texture = new Texture2D(chunkScale, chunkScale, TextureFormat.RGBA32, false);
+        GenerateChunkTexture(cx * chunkScale, cy * chunkScale, texture);
+        chunks[cx, cy] = texture;
+    }
+
     void GenerateChunkTexture(int x0, int y0, Texture2D texture)
     {
+        if (texture == null) {
+            texture = new Texture2D(chunkScale, chunkScale, TextureFormat.RGBA32, false);
+        }
         Color32[] colors = new Color32[chunkScale * chunkScale];
         int i = 0;
         for (int yi = 0; yi < chunkScale; yi++) {
@@ -264,13 +274,13 @@ public class MapGenerator : MonoBehaviour
         spriteChunks = new SpriteCell[xChunks, yChunks];
         for (int xc = 0; xc < xChunks; xc++) {
             for (int yc = 0; yc < yChunks; yc++) {
-                Texture2D tex = new Texture2D(chunkScale, chunkScale, TextureFormat.RGBA32, false);
-                chunks[xc, yc] = tex;
-                textures.Add(tex);
+                // Texture2D tex = new Texture2D(chunkScale, chunkScale, TextureFormat.RGBA32, false);
+                // chunks[xc, yc] = tex;
+                // textures.Add(tex);
                 GameObject go = GameObject.Instantiate(cellPrefab);
                 SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
                 SpriteCell sc = new SpriteCell(sr);
-                sc.AssignSprite(xc, yc, chunkScale, tex);
+                // sc.AssignSprite(xc, yc, chunkScale, tex);
                 spriteChunks[xc, yc] = sc;
             }
         }
@@ -278,11 +288,11 @@ public class MapGenerator : MonoBehaviour
 
     void GenerateAllTextures()
     {
-        for (int xc = 0; xc < chunks.GetLength(0); xc++) {
-            for (int yc = 0; yc < chunks.GetLength(1); yc++) {
-                GenerateChunkTexture(xc*pixelWidth, yc*pixelHeight, chunks[xc, yc]);
-            }
-        }
+        //for (int xc = 0; xc < chunks.GetLength(0); xc++) {
+        //    for (int yc = 0; yc < chunks.GetLength(1); yc++) {
+        //        GenerateChunkTexture(xc*pixelWidth, yc*pixelHeight, chunks[xc, yc]);
+        //    }
+        //}
     }
 
     void GenerateSpriteCells()
@@ -319,6 +329,10 @@ public class MapGenerator : MonoBehaviour
                 int yc = y / chunkScale;
                 int yr = y % chunkScale;
                 Texture2D texC = chunks[xc, yc];
+                if (texC == null) {
+                    FixSpriteChunk(xc, yc);
+                    texC = chunks[xc, yc];
+                }
                 Color c = texC.GetPixel(xr, yr);
                 if (c.b != 0 || c.g != 0) {
                     output.didCarve = true;
@@ -340,58 +354,36 @@ public class MapGenerator : MonoBehaviour
         return output;
     }
 
+    void FixSpriteChunk(int cx, int cy)
+    {
+        if (cx < 0 || cx > chunks.GetLength(0) - 1) {
+            return;
+        }
+        if (cy < 0 || cy > chunks.GetLength(1) - 1) {
+            return;
+        }
+        Texture2D tex = chunks[cx, cy];
+        if (tex == null) {
+            AllocAndGenerateChunkTexture(cx, cy);
+        }
+        if (spriteChunks[cx, cy].render.sprite == null || tex == null) {
+            spriteChunks[cx, cy].AssignSprite(cx, cy, chunkScale, chunks[cx, cy]);
+        }
+    }
+
     public void UpdateCameraBounds(float minX, float maxX, float minY, float maxY)
     {
-        int cx0 = (int)Mathf.Clamp(minX / chunkScale, 0, chunks.GetLength(0));
-        int cx1 = (int)Mathf.Clamp((maxX / chunkScale), 0, chunks.GetLength(0));
-        int cy0 = (int)Mathf.Clamp((minY / chunkScale), 0, chunks.GetLength(1));
-        int cy1 = (int)Mathf.Clamp((maxY / chunkScale), 0, chunks.GetLength(1));
+        int cx0 = (int)Mathf.Clamp(minX / chunkScale, 0, chunks.GetLength(0) - 1);
+        int cx1 = (int)Mathf.Clamp((maxX / chunkScale), 0, chunks.GetLength(0) - 1);
+        int cy0 = (int)Mathf.Clamp((minY / chunkScale), 0, chunks.GetLength(1) - 1);
+        int cy1 = (int)Mathf.Clamp((maxY / chunkScale), 0, chunks.GetLength(1) - 1);
 
         Debug.Log("Cam Bounds -- cx0: " + cx0 + ", cx1: " + cx1 + ", cy0: " + cy0 + " cy1: " + cy1);
 
-        //List<SpriteCell> freeCells = new List<SpriteCell>();
-        //foreach (SpriteCell sc in spriteCells) {
-        //    if ((sc.cx != cx0 && sc.cx != cx1) || (sc.cy != cy0 && sc.cy != cy1)) {
-        //        freeCells.Add(sc);
-        //    }
-        //}
-        if (spriteChunks[cx0, cy0] == null) {
-            spriteChunks[cx0, cy0].AssignSprite(cx0, cy0, chunkScale, chunks[cx0, cy0]);
-            //}
-            //toMove.AssignSprite(cx0, cy0, chunkScale, chunks[cx0, cy0]);
-            //spriteChunks[cx0, cy0] = toMove;
-            //freeCells.Remove(toMove);
-        }
-        if (spriteChunks[cx0, cy1] == null) {
-            spriteChunks[cx0, cy1].AssignSprite(cx0, cy1, chunkScale, chunks[cx0, cy1]);
-            //    SpriteCell toMove = freeCells[0];
-            //    if (toMove.cx > -1 && toMove.cy > -1) {
-            //        spriteChunks[toMove.cx, toMove.cy] = null;
-            //    }
-            //    toMove.AssignSprite(cx0, cy1, chunkScale, chunks[cx0, cy1]);
-            //    spriteChunks[cx0, cy1] = toMove;
-            //    freeCells.Remove(toMove);
-        }
-        if (spriteChunks[cx1, cy0] == null) {
-            spriteChunks[cx1, cy0].AssignSprite(cx1, cy0, chunkScale, chunks[cx1, cy0]);
-            //    SpriteCell toMove = freeCells[0];
-            //    if (toMove.cx > -1 && toMove.cy > -1) {
-            //        spriteChunks[toMove.cx, toMove.cy] = null;
-            //    }
-            //    toMove.AssignSprite(cx1, cy0, chunkScale, chunks[cx1, cy0]);
-            //    spriteChunks[cx1, cy0] = toMove;
-            //    freeCells.Remove(toMove);
-        }
-        if (spriteChunks[cx1, cy1] == null) {
-            spriteChunks[cx1, cy1].AssignSprite(cx1, cy1, chunkScale, chunks[cx1, cy1]);
-            //    SpriteCell toMove = freeCells[0];
-            //    if (toMove.cx > -1 && toMove.cy > -1) {
-            //        spriteChunks[toMove.cx, toMove.cy] = null;
-            //    }
-            //    toMove.AssignSprite(cx1, cy1, chunkScale, chunks[cx1, cy1]);
-            //    spriteChunks[cx1, cy1] = toMove;
-            //    freeCells.Remove(toMove);
-        }
+        FixSpriteChunk(cx0, cy0);
+        FixSpriteChunk(cx1, cy0);
+        FixSpriteChunk(cx0, cy1);
+        FixSpriteChunk(cx1, cy1);
     }
 
     // Update is called once per frame
