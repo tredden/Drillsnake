@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: MandelbrotMaterial
-  m_Shader: {fileID: 4800000, guid: 02bad6f9569d64d15924dcfa0860e110, type: 3}
+  m_Shader: {fileID: 4800000, guid: 26d4c4a90e8774c2a9c1417fda02d65f, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -43,6 +43,8 @@ Material:
     m_Floats:
     - _EnableExternalAlpha: 0
     - _MaxIter: 100
+    - _PixelFactor: 8
+    - _Zoom: 1
     m_Colors:
     - _Area: {r: -2, g: -1.2, b: 3, a: 2.4}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
@@ -51,4 +53,5 @@ Material:
     - _ColorOutsideB: {r: 1, g: 1, b: 1, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
+    - _ViewOffset: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
