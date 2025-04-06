@@ -20,6 +20,18 @@ public class CameraFollowScript : MonoBehaviour
     {
         cam = GetComponent<Camera>();
         pixelCam = GetComponent<PixelPerfectCamera>();
+        FixMapBounds();
+    }
+
+    void FixMapBounds()
+    {
+        MapGenerator map = MapGenerator.GetInstance();
+        if (map == null) {
+            return;
+        }
+        Vector3 minCam = cam.ScreenToWorldPoint(Vector3.zero);
+        Vector3 maxCam = cam.ScreenToWorldPoint(new Vector3(cam.pixelWidth, cam.pixelHeight, 0f));
+        map.UpdateCameraBounds(Mathf.Min(minCam.x, maxCam.x), Mathf.Max(minCam.x, maxCam.x), Mathf.Min(minCam.y, maxCam.y), Mathf.Max(minCam.y, maxCam.y));
     }
 
     // Update is called once per frame
@@ -32,6 +44,9 @@ public class CameraFollowScript : MonoBehaviour
         int maxY = minY + trackingPixelBounds.height;
         Vector3 clampedScreenPoint = new Vector3(Mathf.Clamp(screenPoint.x, minX, maxX), Mathf.Clamp(screenPoint.y, minY, maxY), screenPoint.z);
         Vector3 delta = new Vector3(Mathf.RoundToInt(screenPoint.x - clampedScreenPoint.x), Mathf.RoundToInt(screenPoint.y - clampedScreenPoint.y), 0f);
-        cam.transform.Translate(delta);
+        if (delta.magnitude > 0f) {
+            cam.transform.Translate(delta);
+        }
+        FixMapBounds();
     }
 }

@@ -256,7 +256,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: 512, y: 512, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -420,11 +420,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 110429356578860739, guid: 7a66281a4f5da40fb81d97283c0b699f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 512
       objectReference: {fileID: 0}
     - target: {fileID: 110429356578860739, guid: 7a66281a4f5da40fb81d97283c0b699f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 512
       objectReference: {fileID: 0}
     - target: {fileID: 110429356578860739, guid: 7a66281a4f5da40fb81d97283c0b699f, type: 3}
       propertyPath: m_LocalPosition.z
@@ -549,10 +549,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 524c4376880846442aa16af4ea4ddf46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cellPrefab: {fileID: 1583021997617891872, guid: d95dc6f6b5d44684d81007c2db012cff, type: 3}
   seed: 0
-  pixelWidth: 1024
-  pixelHeight: 1024
-  chunkScale: 1024
+  pixelWidth: 2048
+  pixelHeight: 2048
+  chunkScale: 512
   worldScale: 8
   activeTexture: {fileID: 0}
   chunkCoord: {x: 0, y: 0}

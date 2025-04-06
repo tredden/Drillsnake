@@ -20,6 +20,29 @@ public struct CarveResults
 
 public class MapGenerator : MonoBehaviour
 {
+    [SerializeField]
+    GameObject cellPrefab;
+
+    class SpriteCell
+    {
+        SpriteRenderer render;
+        public int cx = -1;
+        public int cy = -1;
+
+        public SpriteCell(SpriteRenderer render)
+        {
+            this.render = render;
+        }
+
+        public void AssignSprite(int cx, int cy, int chunkScale, Texture2D tex)
+        {
+            render.gameObject.transform.position = new Vector3(cx * chunkScale, cy * chunkScale, 0f);
+            render.sprite = Sprite.Create(tex, new Rect(0, 0, chunkScale, chunkScale), Vector2.zero, 1f);
+            this.cx = cx;
+            this.cy = cy;
+        }
+    }
+
     static MapGenerator instance;
 
     [SerializeField]
@@ -36,6 +59,8 @@ public class MapGenerator : MonoBehaviour
     int worldScale = 16;
 
     Texture2D[,] chunks;
+    SpriteCell[,] spriteChunks;
+    // List<SpriteCell> spriteCells;
 
     [SerializeField]
     Texture2D activeTexture;
@@ -47,17 +72,22 @@ public class MapGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (instance == null) {
-            instance = this;
-        } else {
+        if (instance != null) {
             GameObject.DestroyImmediate(this);
             return;
-        }
+        } 
         if (seed == 0) {
             GenerateSeed();
         }
         AllocateTextures();
+        GenerateSpriteCells();
         GenerateAllTextures();
+        if (instance != null) {
+            GameObject.DestroyImmediate(this);
+            return;
+        } else {
+            instance = this;
+        }
     }
 
     public static MapGenerator GetInstance()
@@ -228,9 +258,16 @@ public class MapGenerator : MonoBehaviour
         int xChunks = (pixelWidth + (chunkScale - 1)) / chunkScale;
         int yChunks = (pixelHeight + (chunkScale - 1)) / chunkScale;
         chunks = new Texture2D[xChunks, yChunks];
+        spriteChunks = new SpriteCell[xChunks, yChunks];
         for (int xc = 0; xc < xChunks; xc++) {
             for (int yc = 0; yc < yChunks; yc++) {
-                chunks[xc, yc] = new Texture2D(chunkScale, chunkScale, TextureFormat.RGBA32, false);
+                Texture2D tex = new Texture2D(chunkScale, chunkScale, TextureFormat.RGBA32, false);
+                chunks[xc, yc] = tex;
+                GameObject go = GameObject.Instantiate(cellPrefab);
+                SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
+                SpriteCell sc = new SpriteCell(sr);
+                sc.AssignSprite(xc, yc, chunkScale, tex);
+                spriteChunks[xc, yc] = sc;
             }
         }
     }
@@ -242,6 +279,18 @@ public class MapGenerator : MonoBehaviour
                 GenerateChunkTexture(xc*pixelWidth, yc*pixelHeight, chunks[xc, yc]);
             }
         }
+    }
+
+    void GenerateSpriteCells()
+    {
+        // int numCells = (spriteChunks.GetLength(0) > 0 ? 2 : 1) * (spriteChunks.GetLength(1) > 0 ? 2 : 1);
+        // this.spriteCells = new List<SpriteCell>();
+        // for (int i = 0; i < numCells; i++) {
+        //    GameObject go = GameObject.Instantiate(cellPrefab);
+        //    SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
+        //    SpriteCell sc = new SpriteCell(sr);
+        //    this.spriteCells.Add(sc);
+        // }
     }
 
     public CarveResults CarveMap(int x0, int y0, int radius)
@@ -287,13 +336,64 @@ public class MapGenerator : MonoBehaviour
         return output;
     }
 
+    public void UpdateCameraBounds(float minX, float maxX, float minY, float maxY)
+    {
+        //int cx0 = (int)Mathf.Clamp(minX / chunkScale, 0, chunks.GetLength(0));
+        //int cx1 = (int)Mathf.Clamp((maxX / chunkScale), 0, chunks.GetLength(0));
+        //int cy0 = (int)Mathf.Clamp((minY / chunkScale), 0, chunks.GetLength(1));
+        //int cy1 = (int)Mathf.Clamp((maxY / chunkScale), 0, chunks.GetLength(1));
+
+        //Debug.Log("Cam Bounds -- cx0: " + cx0 + ", cx1: " + cx1 + ", cy0: " + cy0 + " cy1: " + cy1);
+
+        //List<SpriteCell> freeCells = new List<SpriteCell>();
+        //foreach (SpriteCell sc in spriteCells) {
+        //    if ((sc.cx != cx0 && sc.cx != cx1) || (sc.cy != cy0 && sc.cy != cy1)) {
+        //        freeCells.Add(sc);
+        //    }
+        //}
+        //if (spriteChunks[cx0, cy0] == null) {
+        //    SpriteCell toMove = freeCells[0];
+        //    if (toMove.cx > -1 && toMove.cy > -1) {
+        //        spriteChunks[toMove.cx, toMove.cy] = null;
+        //    }
+        //    toMove.AssignSprite(cx0, cy0, chunkScale, chunks[cx0, cy0]);
+        //    spriteChunks[cx0, cy0] = toMove;
+        //    freeCells.Remove(toMove);
+        //}
+        //if (spriteChunks[cx0, cy1] == null) {
+        //    SpriteCell toMove = freeCells[0];
+        //    if (toMove.cx > -1 && toMove.cy > -1) {
+        //        spriteChunks[toMove.cx, toMove.cy] = null;
+        //    }
+        //    toMove.AssignSprite(cx0, cy1, chunkScale, chunks[cx0, cy1]);
+        //    spriteChunks[cx0, cy1] = toMove;
+        //    freeCells.Remove(toMove);
+        //}
+        //if (spriteChunks[cx1, cy0] == null) {
+        //    SpriteCell toMove = freeCells[0];
+        //    if (toMove.cx > -1 && toMove.cy > -1) {
+        //        spriteChunks[toMove.cx, toMove.cy] = null;
+        //    }
+        //    toMove.AssignSprite(cx1, cy0, chunkScale, chunks[cx1, cy0]);
+        //    spriteChunks[cx1, cy0] = toMove;
+        //    freeCells.Remove(toMove);
+        //}
+        //if (spriteChunks[cx1, cy1] == null) {
+        //    SpriteCell toMove = freeCells[0];
+        //    if (toMove.cx > -1 && toMove.cy > -1) {
+        //        spriteChunks[toMove.cx, toMove.cy] = null;
+        //    }
+        //    toMove.AssignSprite(cx1, cy1, chunkScale, chunks[cx1, cy1]);
+        //    spriteChunks[cx1, cy1] = toMove;
+        //    freeCells.Remove(toMove);
+        //}
+    }
+
     // Update is called once per frame
     void Update()
     {
         if (update) {
             activeTexture = chunks[chunkCoord.x, chunkCoord.y];
-            SpriteRenderer render = GetComponent<SpriteRenderer>();
-            render.sprite = Sprite.Create(activeTexture, new Rect(0, 0, chunkScale, chunkScale), Vector2.zero, 1f);
             update = false;
         }
     }
