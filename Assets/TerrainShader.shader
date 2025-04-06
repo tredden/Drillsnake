@@ -125,33 +125,25 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 float2 uv = floor(baseCoord + _ViewOffset.xy);
                 // *** END OF MODIFIED UV CALCULATION ***
 
-
-                // Predefined Colors
-                float3 darkbrown = fromColor(0x571906); float3 mediumbrown = fromColor(0xa75831); float3 lightbrown = fromColor(0xc98759);
-                float3 darktan = fromColor(0x8a4b1f); float3 mediumtan= fromColor(0xd2a170); float3 lighttan = fromColor(0xf5d5a4);
-                float3 darkgrey  = fromColor(0x736458); float3 mediumgrey= fromColor(0xd1c5b6); float3 lightgrey = fromColor(0xeceadf);
-                float3 darkbluegray  = fromColor(0x3b4151); float3 mediumbluegray= fromColor(0x8c9096); float3 lightbluegray = fromColor(0xa4a7b2);
-                float3 darkpurple  = fromColor(0x3e3a41); float3 mediumpurple= fromColor(0x625257); float3 lightpurple = fromColor(0x897e85);
-
                 // Calculate density
                 float dens = density(uv);
 
                 // Air Color
                 if (dens < 0.0f) {
-                    float3 airColorBase = float3(0.5, 0.7, 0.9);
-                    float3 airColor = exp(log(airColorBase) * -dens * 0.01f);
-                    return fixed4(airColor, 1.0);
+                    float3 airColorBase = float3(0.0, 0.0, 0.0);
+                    // float3 airColor = exp(log(airColorBase) * -dens * 0.01f);
+                    return fixed4(airColorBase, 0.5);
                 }
 
                 // Base terrain noise
                 float t = vrand(uv, 0u);
 
                 // Top grass/soil layer
-                 if (dens < 3.0f) {
+                 /*if (dens < 3.0f) {
                       float3 grass_dark = fromColor(0x213f00); float3 grass_med = fromColor(0x607d2d); float3 grass_light = fromColor(0x92b90f);
                       float3 col = qbez(grass_light, grass_med, grass_dark, t * t);
                       return fixed4(col, 1.0);
-                 }
+                 }*/
 
                  // Determine material type
                  uint mat = (dens < 8.0f) ? 1u : (dens < 32.0f) ? 2u : (dens < 64.0f) ? 3u : (dens < 128.0f) ? 4u : 5u;
@@ -162,12 +154,16 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                  t = lerp(t, vrand(vn_cell, mat), 0.35f);
 
                 // Select soil colors
-                float3 dsoil, msoil, lsoil;
-                if (dens < 8.0f) { dsoil = darktan; msoil = mediumtan; lsoil = lighttan; }
-                else if (dens < 32.0f) { dsoil = darkbrown; msoil = mediumbrown; lsoil = lightbrown; }
-                else if (dens < 64.0f) { dsoil = darkgrey; msoil = mediumgrey; lsoil = lightgrey; }
-                else if (dens < 128.0f) { dsoil = darkbluegray; msoil = mediumbluegray; lsoil = lightbluegray; }
-                else { dsoil = darkpurple; msoil = mediumpurple; lsoil = lightpurple; }
+                // float3 dsoil, msoil, lsoil;
+
+                float3 dsoil = float3(0, 0, .1f);
+                float3 msoil = float3(0, 0, .2f);
+                float3 lsoil = float3(0, 0, .3f);
+
+                float3 drock = float3(0, 0, 1.0f);
+                float3 mrock = float3(0, 0, .9f);
+                float3 lrock = float3(0, 0, .8f);
+
 
                 // Calculate rock radius and modify color if inside rock
                 float r_rock = vrand(vn_cell, 3u) * 0.2f;
@@ -176,11 +172,11 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                  else { // Rock
                       float rock_t = 1.0f - (1.0f - t) * (1.0f - t);
                       rock_t += (r_rock - d_voronoi) * 2.0f;
-                      col = qbez(darkbluegray, mediumbluegray, lightbluegray, saturate(rock_t));
+                      col = qbez(drock, mrock, lrock, saturate(rock_t));
                  }
 
                 // --- Ore Vein Calculation (Identical logic to previous version) ---
-                float3 darkgold = fromColor(0x947522); float3 mediumgold = fromColor(0xedbc4c); float3 lightgold = fromColor(0xffe05c);
+                float3 darkgold = float3(0, .9f, 0); float3 mediumgold = float3(0, 0.6f, 0); float3 lightgold = float3(0, 0.3f, 0);
                 float3 gold = qbez(darkgold, mediumgold, lightgold, t);
                 float2 c0 = float2(-0.1009521484375f + sin(_Time.y) * 0.01f, -0.9563293457031254f + cos(_Time.y) * 0.01f);
                 float2 noise_offset = (vrand22(uv * 0.005f, 10u) * 2.0f - 1.0f + (vrand22(uv * 0.02f, 12u) * 1.0f - 0.5f)) * 0.1f;
@@ -203,7 +199,7 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 float ore_threshold_gold = 100.0f / max(1.0f, dens);
                 float ore_threshold_stone = 10.0f / max(1.0f, dens);
                 if (orevein > ore_threshold_gold) { col = gold; }
-                else if (orevein * vrand(uv * 0.001f, 32u) > ore_threshold_stone) { col = qbez(darkbluegray, mediumbluegray, lightbluegray, t); }
+                else if (orevein * vrand(uv * 0.001f, 32u) > ore_threshold_stone) { col = qbez(drock, mrock, lrock, t); }
 
                 // Final Output
                 return fixed4(col, 1.0);
