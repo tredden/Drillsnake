@@ -172,7 +172,12 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                  float d_voronoi = length(vn_pos - uv * 0.1f);
                  t = lerp(t, vrand(vn_cell, mat), 0.35f);
 
-              
+                 // TODO: this is the rock to gold chance
+                 if (vrand(vn_pos, 4u) < .1) {
+                     drock = darkgold;
+                     mrock = mediumgold;
+                     lrock = lightgold;
+                 }
 
                 // Calculate rock radius and modify color if inside rock
                 float r_rock = vrand(vn_cell, 3u) * 0.2f;
