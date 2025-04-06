@@ -138,11 +138,11 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 float t = vrand(uv, 0u);
 
                 // Top grass/soil layer
-                 /*if (dens < 3.0f) {
-                      float3 grass_dark = fromColor(0x213f00); float3 grass_med = fromColor(0x607d2d); float3 grass_light = fromColor(0x92b90f);
+                 if (dens < 3.0f) {
+                      float3 grass_dark = float3(0,0,0.3); float3 grass_med = float3(0, 0, 0.25);; float3 grass_light = float3(0, 0, 0.2);;
                       float3 col = qbez(grass_light, grass_med, grass_dark, t * t);
-                      return fixed4(col, 1.0);
-                 }*/
+                      return fixed4(col, 0.75);
+                 }
 
                  // Determine material type
                  uint mat = (dens < 8.0f) ? 1u : (dens < 32.0f) ? 2u : (dens < 64.0f) ? 3u : (dens < 128.0f) ? 4u : 5u;
@@ -155,9 +155,9 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 // Select soil colors
                 // float3 dsoil, msoil, lsoil;
 
-                float3 dsoil = float3(0, 0, .3f);
-                float3 msoil = float3(0, 0, .4f);
-                float3 lsoil = float3(0, 0, .45f);
+                float3 dsoil = float3(0, 0, .1f);
+                float3 msoil = float3(0, 0, .15f);
+                float3 lsoil = float3(0, 0, .2f);
 
                 float3 drock = float3(0, 0, 1.0f);
                 float3 mrock = float3(0, 0, .9f);
