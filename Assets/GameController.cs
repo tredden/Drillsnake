@@ -38,6 +38,7 @@ public class GameController : MonoBehaviour
             upgradeList.Add(new UpgradeData("Drill Strength II",300));
 
             shopGUI = GameObject.Find("Shop");
+            shopGUI.SetActive(false);
             PopulateShop();
 
         } else {
