@@ -13,6 +13,8 @@ public struct DrillStats
     public int drillRadius;
     public Vector2Int drillOffset;
     public float drillHardness;
+    public float maxDrillHeat;
+    public float heatRechargeDelay;
 }
 
 
@@ -23,6 +25,10 @@ public enum SnakeState
     Exploding,
     Dead,
 }
+
+public delegate void OnGoldGained(int newGoldAmount);
+public delegate void OnDepthChanged(float newDepth);
+public delegate void OnDeath();
 
 public class SnakeController : MonoBehaviour
 {
@@ -51,8 +57,17 @@ public class SnakeController : MonoBehaviour
 
     // The distance traveled since the snake started
     private float distanceSinceStart = 0f;
+    [SerializeField]
+    public float currentHeat = 0;
+    [SerializeField]
+    float deltaHeat;
+    float timeSinceHeatDamage = 0f;
 
     public int gold = 0;
+
+    public OnGoldGained onGoldGained;
+    public OnDepthChanged onDepthChanged;
+    public OnDeath onDeath;
 
     // Start is called before the first frame update
     void Start()
@@ -77,6 +92,7 @@ public class SnakeController : MonoBehaviour
         position.x += Mathf.Sin(transform.eulerAngles.z * Mathf.Deg2Rad) * speed * Time.deltaTime;
         position.y += -Mathf.Cos(transform.eulerAngles.z * Mathf.Deg2Rad) * speed * Time.deltaTime;
         transform.position = position;
+        this.onDepthChanged(position.y);
 
         if (snakeSegments.Count == 0) return;
 
@@ -97,15 +113,29 @@ public class SnakeController : MonoBehaviour
         if (map != null) {
             CarveResults results = map.CarveMap(
                 Mathf.RoundToInt(drillCoord.x), Mathf.RoundToInt(drillCoord.y),
-                 drillStats.drillRadius);
+                 drillStats.drillRadius, drillStats.drillHardness);
 
             // Elongate from gold
-            gold += Mathf.RoundToInt(results.totalGold);
-            this.SetLength(gold / 100 + 3);
+            int addedGold = Mathf.RoundToInt(results.totalGold); // TODO: should this acc as a float?
+            if (addedGold > 0) {
+                gold += addedGold;
+                this.SetLength(gold / 1000 + 3);
+                // broadcast change for player controller or UI
+                onGoldGained.Invoke(gold);
+            }
 
-            // Explode when hitting rocks
-            if (results.maxThickness > drillStats.drillHardness) {
-				Explode();
+            deltaHeat = (results.averageThickness - drillStats.drillHardness) + (results.maxThickness - drillStats.drillHardness) * 4f;
+            if (deltaHeat > 0f) {
+                timeSinceHeatDamage = 0f;
+            }
+            if (timeSinceHeatDamage < drillStats.heatRechargeDelay) {
+                deltaHeat = Mathf.Max(0f, deltaHeat);
+            }
+            currentHeat = Mathf.Clamp(currentHeat + deltaHeat, 0f, drillStats.maxDrillHeat);
+            timeSinceHeatDamage += Time.deltaTime;
+
+            if (currentHeat >= drillStats.maxDrillHeat) {
+                Explode();
             }
         }
     }
@@ -184,7 +214,8 @@ public class SnakeController : MonoBehaviour
 		// Explodes the snake from the head down through its tail over time.
 		if (state == SnakeState.Dead) return;
 
-		// TODO: Explode
+        // TODO: Explode
+        onDeath.Invoke();
         deathTime = Time.time;
         state = SnakeState.Dead;
         Debug.Log("Snake exploded!");
@@ -195,6 +226,8 @@ public class SnakeController : MonoBehaviour
         state = SnakeState.Alive;
         distanceSinceStart = 0f;
         speed = 0f;
+        currentHeat = 0f;
+        timeSinceHeatDamage = drillStats.heatRechargeDelay + 1f;
 
         foreach (GameObject segment in snakeSegments)
         {

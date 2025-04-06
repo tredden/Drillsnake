@@ -9,6 +9,7 @@ public struct CarveResults
     public float averageThickness;
     public float totalGold;
     public float totalHazard;
+    public float totalThickness;
 
     public CarveResults(float startingThickness = 0f, float startingGold = 0f, float startingHazard = 0f)
     {
@@ -17,6 +18,7 @@ public struct CarveResults
         averageThickness = startingThickness;
         totalGold = startingGold;
         totalHazard = startingHazard;
+        totalThickness = startingThickness;
     }
 }
 
@@ -379,10 +381,11 @@ public class MapGenerator : MonoBehaviour
         // }
     }
 
-    public CarveResults CarveMap(int x0, int y0, int radius)
+    public CarveResults CarveMap(int x0, int y0, int radius, float drillStrength)
     {
         CarveResults output = new CarveResults();
         List<Texture2D> updatedTextures = new List<Texture2D>();
+        int totalCells = 0;
         for (int xi = -radius; xi <= radius; xi++) {
             int x = x0 + xi;
             if (x < 0 || x >= pixelWidth) {
@@ -408,13 +411,14 @@ public class MapGenerator : MonoBehaviour
                     carveHistory = carveChunks[xc, yc];
                 }
                 Color c = texC.GetPixel(xr, yr);
+                totalCells++;
                 if (c.b != 0 || c.g != 0) {
                     output.didCarve = true;
                     output.maxThickness = Mathf.Max(output.maxThickness, c.b);
-                    output.averageThickness += c.b;
+                    output.totalThickness += c.b;
                     output.totalGold += c.g;
                     output.totalHazard += c.r;
-                    c.b = 0; // rock
+                    c.b = Mathf.Max(0f, c.b - drillStrength); // rock
                     c.g = 0; // gold
                     carveHistory[yr * chunkScale + xr] = true;
                     texC.SetPixel(xr, yr, c);
@@ -424,7 +428,7 @@ public class MapGenerator : MonoBehaviour
                 }
             } // end for y
         } // end for x
-        output.averageThickness /= Mathf.PI * radius * radius;
+        output.averageThickness = output.totalThickness / (float) totalCells;
         foreach (Texture2D tex in updatedTextures) {
             tex.Apply(false, false);
         }

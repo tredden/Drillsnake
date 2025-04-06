@@ -8,6 +8,23 @@ public class PlayerController : MonoBehaviour
     int gold = 0;
 
 	private SnakeController snakeController;
+    [SerializeField]
+    UIController uiController;
+
+    void OnSnakeGoldGained(int newGoldAmount)
+    {
+        uiController.SetGold(gold, newGoldAmount);
+    }
+
+    void OnSnakeDepthChanged(float newDepth)
+    {
+        float depth = MapGenerator.GetInstance().GetTargetSpawnPos().y - newDepth;
+        uiController.SetDepth(depth);
+    }
+    void OnSnakeDeath()
+    {
+
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -17,6 +34,9 @@ public class PlayerController : MonoBehaviour
         {
             Debug.LogError("SnakeController component not found on the GameObject.");
         }
+        snakeController.onGoldGained += this.OnSnakeGoldGained;
+        snakeController.onDepthChanged += this.OnSnakeDepthChanged;
+        snakeController.onDeath += this.OnSnakeDeath;
     }
 
     // Update is called once per frame
@@ -40,8 +60,11 @@ public class PlayerController : MonoBehaviour
         float goldFactor = snakeController.state == SnakeState.Alive ? 1f : 0.7f;
 		gold += Mathf.RoundToInt(snakeController.gold * goldFactor);
         snakeController.gold = 0;
+        this.OnSnakeGoldGained(0);
         snakeController.state = SnakeState.Alive;
         snakeController.speed = 0f;
+        snakeController.currentHeat = 0f;
         snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
+        this.OnSnakeDepthChanged(0f);
     }
 }
