@@ -122,6 +122,28 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 // Apply offset and floor for pixelated grid effect
                 float2 uv = floor(i.uv * _ViewRect.zw + _ViewRect.xy) / effectivePixelFactor;
                 // *** END OF MODIFIED UV CALCULATION ***
+                
+                  // Select soil colors
+                // float3 dsoil, msoil, lsoil;
+
+                float3 grass_dark = float3(0, 0, 0.1f); 
+                float3 grass_med = float3(0, 0, 0.15f);
+                float3 grass_light = float3(0, 0, 0.2f);
+
+                float3 dsoil = float3(0, 0, .1f);
+                float3 msoil = float3(0, 0, .15f);
+                float3 lsoil = float3(0, 0, .2f);
+
+                float3 drock = float3(0, 0, 1.0f);
+                float3 mrock = float3(0, 0, .9f);
+                float3 lrock = float3(0, 0, .8f);
+
+                float3 darkgold = float3(0, .9f, 0);
+                float3 mediumgold = float3(0, 0.8f, 0);
+                float3 lightgold = float3(0, 0.7f, 0);
+
+                float3 airColorBase = float3(0.0, 0.0, 0.0);
+
                 uv = float2(uv.x, -uv.y);
 
                 // Calculate density
@@ -129,7 +151,6 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
 
                 // Air Color
                 if (dens < 0.0f) {
-                    float3 airColorBase = float3(0.0, 0.0, 0.0);
                     // float3 airColor = exp(log(airColorBase) * -dens * 0.01f);
                     return fixed4(airColorBase, 0.5);
                 }
@@ -139,7 +160,6 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
 
                 // Top grass/soil layer
                  if (dens < 3.0f) {
-                      float3 grass_dark = float3(0,0,0.3); float3 grass_med = float3(0, 0, 0.25);; float3 grass_light = float3(0, 0, 0.2);;
                       float3 col = qbez(grass_light, grass_med, grass_dark, t * t);
                       return fixed4(col, 0.75);
                  }
@@ -152,17 +172,7 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                  float d_voronoi = length(vn_pos - uv * 0.1f);
                  t = lerp(t, vrand(vn_cell, mat), 0.35f);
 
-                // Select soil colors
-                // float3 dsoil, msoil, lsoil;
-
-                float3 dsoil = float3(0, 0, .1f);
-                float3 msoil = float3(0, 0, .15f);
-                float3 lsoil = float3(0, 0, .2f);
-
-                float3 drock = float3(0, 0, 1.0f);
-                float3 mrock = float3(0, 0, .9f);
-                float3 lrock = float3(0, 0, .8f);
-
+              
 
                 // Calculate rock radius and modify color if inside rock
                 float r_rock = vrand(vn_cell, 3u) * 0.2f;
@@ -175,7 +185,6 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                  }
 
                 // --- Ore Vein Calculation (Identical logic to previous version) ---
-                float3 darkgold = float3(0, .9f, 0); float3 mediumgold = float3(0, 0.6f, 0); float3 lightgold = float3(0, 0.3f, 0);
                 float3 gold = qbez(darkgold, mediumgold, lightgold, t);
                 float2 c0 = float2(-0.1009521484375f + sin(_Time.y) * 0.01f, -0.9563293457031254f + cos(_Time.y) * 0.01f);
                 float2 noise_offset = (vrand22(uv * 0.005f, 10u) * 2.0f - 1.0f + (vrand22(uv * 0.02f, 12u) * 1.0f - 0.5f)) * 0.1f;

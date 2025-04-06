@@ -10,6 +10,10 @@ public class PlayerController : MonoBehaviour
 	private SnakeController snakeController;
     [SerializeField]
     UIController uiController;
+    [SerializeField]
+    float goldDeathMult = .5f;
+    [SerializeField]
+    float deathTime = .3f;
 
     void OnSnakeGoldGained(int newGoldAmount)
     {
@@ -23,7 +27,7 @@ public class PlayerController : MonoBehaviour
     }
     void OnSnakeDeath()
     {
-
+        // ReturnToBase();
     }
 
     // Start is called before the first frame update
@@ -37,6 +41,8 @@ public class PlayerController : MonoBehaviour
         snakeController.onGoldGained += this.OnSnakeGoldGained;
         snakeController.onDepthChanged += this.OnSnakeDepthChanged;
         snakeController.onDeath += this.OnSnakeDeath;
+        snakeController.Reset();
+        snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
     }
 
     // Update is called once per frame
@@ -49,16 +55,25 @@ public class PlayerController : MonoBehaviour
         
         snakeController.SetControlInputs(controlInputs);
 
-        if (snakeController.state == SnakeState.Dead && (Time.time - snakeController.deathTime > 0.3f))
+        if (snakeController.state == SnakeState.Dead && (Time.time - snakeController.deathTime > deathTime))
         {
+            ReturnToBase();
             snakeController.Reset();
             snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
         }
     }
 
+    void DepositGold(int amt, int lost, float time)
+    {
+        uiController.TriggerGoldDeposit(gold, amt, lost, time);
+        gold += amt;
+    }
+
     void ReturnToBase() {
-        float goldFactor = snakeController.state == SnakeState.Alive ? 1f : 0.7f;
-		gold += Mathf.RoundToInt(snakeController.gold * goldFactor);
+        float goldFactor = snakeController.state == SnakeState.Alive ? 1f : goldDeathMult;
+        int goldGain = Mathf.RoundToInt(snakeController.gold * goldFactor);
+        int goldLost = snakeController.gold - goldGain;
+        DepositGold(goldGain, goldLost, deathTime);
         snakeController.gold = 0;
         this.OnSnakeGoldGained(0);
         snakeController.state = SnakeState.Alive;
