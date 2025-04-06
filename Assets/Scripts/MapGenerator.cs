@@ -239,9 +239,6 @@ public class MapGenerator : MonoBehaviour
 
     void GenerateChunkTexture(int x0, int y0, Texture2D texture)
     {
-        if (texture == null) {
-            texture = new Texture2D(chunkScale, chunkScale, TextureFormat.RGBA32, false);
-        }
         Color32[] colors = new Color32[chunkScale * chunkScale];
         int i = 0;
         for (int yi = 0; yi < chunkScale; yi++) {
@@ -380,10 +377,11 @@ public class MapGenerator : MonoBehaviour
 
         Debug.Log("Cam Bounds -- cx0: " + cx0 + ", cx1: " + cx1 + ", cy0: " + cy0 + " cy1: " + cy1);
 
-        FixSpriteChunk(cx0, cy0);
-        FixSpriteChunk(cx1, cy0);
-        FixSpriteChunk(cx0, cy1);
-        FixSpriteChunk(cx1, cy1);
+        for (int cx = cx0; cx <= cx1; cx++) {
+            for (int cy = cy0; cy <= cy1; cy++) {
+                FixSpriteChunk(cx, cy);
+            }
+        }
     }
 
     // Update is called once per frame
