@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: MandelbrotMaterial
+  m_Name: TerrainMat
   m_Shader: {fileID: 4800000, guid: 26d4c4a90e8774c2a9c1417fda02d65f, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -53,5 +53,5 @@ Material:
     - _ColorOutsideB: {r: 1, g: 1, b: 1, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
-    - _ViewOffset: {r: 0, g: 0, b: 0, a: 0}
+    - _ViewOffset: {r: 10, g: -20, b: 0, a: 0}
   m_BuildTextureStacks: []

@@ -74,6 +74,9 @@ public class MapGenerator : MonoBehaviour
     [SerializeField]
     bool update = true;
 
+    [SerializeField]
+    bool useGPU = true;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -247,25 +250,25 @@ public class MapGenerator : MonoBehaviour
 
     void GenerateChunkTexture(int x0, int y0, Texture2D texture, BitArray carveHistory)
     {
-        bool hasCarveHistory = carveHistory != null;
-        Color[] colors = new Color[chunkScale * chunkScale];
-        int i = 0;
-        int x;
-        int y;
-        float r;
-        float g;
-        float b;
-        Color c;
-        Vector2 uv;
-        bool inBounds;
-        for (int yi = 0; yi < chunkScale; yi++) {
-            y = yi + y0;
-            for (int xi = 0; xi < chunkScale; xi++) {
-                x = xi + x0;
-                inBounds = x >= 0 && x < pixelWidth && y >= 0 && y < pixelHeight;
-                if (!inBounds) {
-                    c = Color.clear;
-                } else {
+        if (useGPU) {
+            TextureReader.GetInstance().QueueTerrainChunk(x0, y0, chunkScale, texture);
+        } else {
+            bool hasCarveHistory = carveHistory != null;
+            Color[] colors = new Color[chunkScale * chunkScale];
+            int i = 0;
+            int x;
+            int y;
+            float r;
+            float g;
+            float b;
+            Color c;
+            Vector2 uv;
+            bool inBounds;
+            for (int yi = 0; yi < chunkScale; yi++) {
+                y = yi + y0;
+                for (int xi = 0; xi < chunkScale; xi++) {
+                    x = xi + x0;
+                    inBounds = x >= 0 && x < pixelWidth && y >= 0 && y < pixelHeight;
                     uv = new Vector2(x, -y) / worldScale;
                     float dens = 0f; // density(uv);
                     r = SampleHazardValue(uv, dens);
@@ -277,13 +280,55 @@ public class MapGenerator : MonoBehaviour
                         b = SampleDirtThickness(uv, dens);
                     }
                     c = new Color(r, g, b, 1f);
+                    colors[i] = c;
+                    i++;
                 }
-                colors[i] = c;
+            }
+            texture.SetPixels(colors, 0);
+            texture.Apply(false, false);
+        }
+    }
+
+    public void CarveOnFinishTexture(int x0, int y0, int chunkScale, Texture2D texture)
+    {
+        int cx = x0 / chunkScale;
+        int cy = y0 / chunkScale;
+
+        if (cx < 0 || cx > chunks.GetLength(0) - 1 || cy < 0 || cy > chunks.GetLength(1)) {
+            return;
+        }
+
+        BitArray carveHistory = this.carveChunks[cx, cy];
+        bool hasCarveHistory = carveHistory != null;
+
+        Color[] colors = texture.GetPixels();
+        int i = 0;
+        Color c;
+        int y;
+        int x;
+        bool inBounds;
+        for (int yi = 0; yi < chunkScale; yi++) {
+            y = yi + y0;
+            for (int xi = 0; xi < chunkScale; xi++) {
+                x = xi + x0;
+                inBounds = x >= 0 && x < pixelWidth && y >= 0 && y < pixelHeight;
+                if (!inBounds) {
+                    c = Color.clear;
+                    colors[i] = c;
+                } else if (hasCarveHistory && carveHistory[i]) {
+                    c = colors[i];
+                    c.g = 0;
+                    c.b = 0;
+                    colors[i] = c;
+                } else {
+                   // NOP, leave exiting data
+                }
                 i++;
             }
         }
         texture.SetPixels(colors, 0);
         texture.Apply(false, false);
+        Debug.Log("Texture data sent back to GPU for rendering after carve");
     }
 
     void GenerateSeed()

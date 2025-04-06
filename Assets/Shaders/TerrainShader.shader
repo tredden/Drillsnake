@@ -23,7 +23,7 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
 
             // Uniforms from Properties block
             float _PixelFactor;
-            float4 _ViewOffset; // Using xy for panning
+            float4 _ViewRect; // Using xy for panning
             float _Zoom;
 
             // Structure to pass data from vertex to fragment shader
@@ -31,7 +31,7 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
             {
                 float4 vertex : SV_POSITION;
                 float4 screenPos : TEXCOORD0; // Screen position for fragCoord calculation
-                // float2 uv : TEXCOORD1; // Original UVs (still available if needed)
+                float2 uv : TEXCOORD1; // Original UVs (still available if needed)
             };
 
             // Vertex Shader (same as before)
@@ -40,7 +40,7 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.screenPos = ComputeScreenPos(o.vertex);
-                // o.uv = v.texcoord;
+                o.uv = v.texcoord;
                 return o;
             }
 
@@ -119,10 +119,8 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 float effectivePixelFactor = _PixelFactor * _Zoom;
                 // Prevent division by zero or very small numbers if zoom is zero or negative
                 effectivePixelFactor = max(effectivePixelFactor, 0.001f);
-                // Calculate base coordinate using zoom
-                float2 baseCoord = pixelCoord / effectivePixelFactor;
                 // Apply offset and floor for pixelated grid effect
-                float2 uv = floor(baseCoord + _ViewOffset.xy);
+                float2 uv = floor(i.uv * _ViewRect.zw + _ViewRect.xy) / effectivePixelFactor;
                 // *** END OF MODIFIED UV CALCULATION ***
 
                 // Calculate density
