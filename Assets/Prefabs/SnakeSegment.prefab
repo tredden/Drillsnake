@@ -97,5 +97,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e92dd111e7e0a4e6db97775235d6a68e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  segmentLength: 14
-  nextSegment: {fileID: 0}
+  frontSpacing: 7
+  backSpacing: 7

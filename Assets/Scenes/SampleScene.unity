@@ -553,7 +553,7 @@ MonoBehaviour:
   seed: 0
   pixelWidth: 2048
   pixelHeight: 2048
-  chunkScale: 512
+  chunkScale: 1024
   worldScale: 8
   activeTexture: {fileID: 0}
   chunkCoord: {x: 0, y: 0}
