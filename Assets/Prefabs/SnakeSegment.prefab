@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6606037179549014491}
   - component: {fileID: -2367120146758782097}
   - component: {fileID: 6234946298652202199}
+  - component: {fileID: 3753896232186195397}
   m_Layer: 0
   m_Name: SnakeSegment
   m_TagString: Untagged
@@ -99,3 +100,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   frontSpacing: 7
   backSpacing: 7
+  owner: {fileID: 0}
+--- !u!58 &3753896232186195397
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1839290366713060048}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 7

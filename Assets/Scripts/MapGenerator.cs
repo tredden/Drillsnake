@@ -59,6 +59,8 @@ public class MapGenerator : MonoBehaviour
     int chunkScale = 1024;
     [SerializeField]
     int worldScale = 16;
+    [SerializeField]
+    int yOffset;
 
     BitArray[,] carveChunks;
     Texture2D[,] chunks;
@@ -73,6 +75,9 @@ public class MapGenerator : MonoBehaviour
     Vector2Int chunkCoord;
     [SerializeField]
     bool update = true;
+
+    [SerializeField]
+    bool useGPU = true;
 
     // Start is called before the first frame update
     void Start()
@@ -175,7 +180,6 @@ public class MapGenerator : MonoBehaviour
     // >=.5 for rock
     float SampleDirtThickness(Vector2 uv, float dens)
     {
-        return .3f;
         if (dens < 0) {
             return 0f;
         } else {
@@ -189,7 +193,6 @@ public class MapGenerator : MonoBehaviour
     // provides values for gold
     float SampleOreValue(Vector2 uv, float dens)
     {
-        return 0f;
         Vector2 c0 = new Vector2(-0.1009521484375f, -0.9563293457031254f);
         Vector2 c = c0 + (new Vector2(valnoise(uv * .005f, 10u), valnoise(uv * .005f, 11u)) * 2f - Vector2.one + (new Vector2(valnoise(uv * .02f, 12u), valnoise(uv * .02f, 13u)) - .5f*Vector2.one)) * .1f;
         Vector2 z = c;
@@ -237,7 +240,7 @@ public class MapGenerator : MonoBehaviour
             texture = new Texture2D(chunkScale, chunkScale, TextureFormat.RGBA32, false);
         }
         BitArray carveHistory = carveChunks[cx, cy];
-        GenerateChunkTexture(cx * chunkScale, cy * chunkScale, texture, carveHistory);
+        GenerateChunkTexture(cx * chunkScale, cy * chunkScale + yOffset, texture, carveHistory);
         chunks[cx, cy] = texture;
         if (carveHistory == null) {
             carveHistory = new BitArray(chunkScale * chunkScale);
@@ -247,27 +250,27 @@ public class MapGenerator : MonoBehaviour
 
     void GenerateChunkTexture(int x0, int y0, Texture2D texture, BitArray carveHistory)
     {
-        bool hasCarveHistory = carveHistory != null;
-        Color[] colors = new Color[chunkScale * chunkScale];
-        int i = 0;
-        int x;
-        int y;
-        float r;
-        float g;
-        float b;
-        Color c;
-        Vector2 uv;
-        bool inBounds;
-        for (int yi = 0; yi < chunkScale; yi++) {
-            y = yi + y0;
-            for (int xi = 0; xi < chunkScale; xi++) {
-                x = xi + x0;
-                inBounds = x >= 0 && x < pixelWidth && y >= 0 && y < pixelHeight;
-                if (!inBounds) {
-                    c = Color.clear;
-                } else {
+        if (useGPU) {
+            TextureReader.GetInstance().QueueTerrainChunk(x0, y0, chunkScale, texture);
+        } else {
+            bool hasCarveHistory = carveHistory != null;
+            Color[] colors = new Color[chunkScale * chunkScale];
+            int i = 0;
+            int x;
+            int y;
+            float r;
+            float g;
+            float b;
+            Color c;
+            Vector2 uv;
+            bool inBounds;
+            for (int yi = 0; yi < chunkScale; yi++) {
+                y = yi + y0;
+                for (int xi = 0; xi < chunkScale; xi++) {
+                    x = xi + x0;
+                    inBounds = x >= 0 && x < pixelWidth && y >= 0 + yOffset && y < pixelHeight + yOffset;
                     uv = new Vector2(x, -y) / worldScale;
-                    float dens = 0f; // density(uv);
+                    float dens = density(uv);
                     r = SampleHazardValue(uv, dens);
                     if (hasCarveHistory && carveHistory[i]) {
                         g = 0;
@@ -277,13 +280,55 @@ public class MapGenerator : MonoBehaviour
                         b = SampleDirtThickness(uv, dens);
                     }
                     c = new Color(r, g, b, 1f);
+                    colors[i] = c;
+                    i++;
                 }
-                colors[i] = c;
+            }
+            texture.SetPixels(colors, 0);
+            texture.Apply(false, false);
+        }
+    }
+
+    public void CarveOnFinishTexture(int x0, int y0, int chunkScale, Texture2D texture)
+    {
+        int cx = x0 / chunkScale;
+        int cy = (y0 - yOffset) / chunkScale;
+
+        if (cx < 0 || cx > chunks.GetLength(0) - 1 || cy < 0 || cy > chunks.GetLength(1)) {
+            return;
+        }
+
+        BitArray carveHistory = this.carveChunks[cx, cy];
+        bool hasCarveHistory = carveHistory != null;
+
+        Color[] colors = texture.GetPixels();
+        int i = 0;
+        Color c;
+        int y;
+        int x;
+        bool inBounds;
+        for (int yi = 0; yi < chunkScale; yi++) {
+            y = yi + y0;
+            for (int xi = 0; xi < chunkScale; xi++) {
+                x = xi + x0;
+                inBounds = x >= 0 && x < pixelWidth && y >= 0 + yOffset && y < pixelHeight + yOffset;
+                if (!inBounds) {
+                    c = Color.clear;
+                    colors[i] = c;
+                } else if (hasCarveHistory && carveHistory[i]) {
+                    c = colors[i];
+                    c.g = 0;
+                    c.b = 0;
+                    colors[i] = c;
+                } else {
+                   // NOP, leave exiting data
+                }
                 i++;
             }
         }
         texture.SetPixels(colors, 0);
         texture.Apply(false, false);
+        Debug.Log("Texture data sent back to GPU for rendering after carve");
     }
 
     void GenerateSeed()
@@ -386,6 +431,11 @@ public class MapGenerator : MonoBehaviour
         return output;
     }
 
+    public Vector3 GetTargetSpawnPos()
+    {
+        return new Vector3(pixelWidth / 2f, pixelHeight - chunkScale / 2f, 0f);
+    }
+
     void FixSpriteChunk(int cx, int cy)
     {
         if (cx < 0 || cx > chunks.GetLength(0) - 1) {
@@ -423,19 +473,20 @@ public class MapGenerator : MonoBehaviour
 
     public void UpdateCameraBounds(float minX, float maxX, float minY, float maxY)
     {
-        int cx0 = (int)Mathf.Clamp(minX / chunkScale, 0, chunks.GetLength(0) - 1);
-        int cx1 = (int)Mathf.Clamp((maxX / chunkScale), 0, chunks.GetLength(0) - 1);
-        int cy0 = (int)Mathf.Clamp((minY / chunkScale), 0, chunks.GetLength(1) - 1);
-        int cy1 = (int)Mathf.Clamp((maxY / chunkScale), 0, chunks.GetLength(1) - 1);
+        int genBuffer = 1;
+        int keepBuffer = 3;
+
+        int cx0 = (int)Mathf.Clamp(minX / chunkScale - genBuffer, 0, chunks.GetLength(0) - 1);
+        int cx1 = (int)Mathf.Clamp(maxX / chunkScale + genBuffer, 0, chunks.GetLength(0) - 1);
+        int cy0 = (int)Mathf.Clamp(minY / chunkScale - genBuffer, 0, chunks.GetLength(1) - 1);
+        int cy1 = (int)Mathf.Clamp(maxY / chunkScale + genBuffer, 0, chunks.GetLength(1) - 1);
 
         //Debug.Log("Cam Bounds -- cx0: " + cx0 + ", cx1: " + cx1 + ", cy0: " + cy0 + " cy1: " + cy1);
 
-        int poolBuffer = 1;
-
         for (int cx = 0; cx < chunks.GetLength(0); cx++) {
-            bool xFreeable = cx < cx0 - poolBuffer || cx > cx1 + poolBuffer;
+            bool xFreeable = cx < cx0 - keepBuffer || cx > cx1 + keepBuffer;
             for (int cy = 0; cy < chunks.GetLength(1); cy++) {
-                bool yFreeable = cy < cy0 - poolBuffer || cy > cy1 + poolBuffer; 
+                bool yFreeable = cy < cy0 - keepBuffer || cy > cy1 + keepBuffer; 
                 if (xFreeable || yFreeable) {
                     UnloadSpriteChunk(cx, cy);
                 }
