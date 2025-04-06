@@ -38,13 +38,13 @@ public class SnakeController : MonoBehaviour
     [SerializeField]
     private int segments = 5;
     [SerializeField]
-    private float maxSpeed = 128f;
+    public float maxSpeed = 128f;
     
     [SerializeField]
     private float acceleration = 48f;
 
     [SerializeField]
-    private float turnSpeed = 180f;
+    public float turnSpeed = 180f;
     
     [SerializeField]
     private float maxExplodeTime = 2f;
@@ -99,7 +99,7 @@ public class SnakeController : MonoBehaviour
         position.x += Mathf.Sin(transform.eulerAngles.z * Mathf.Deg2Rad) * speed * Time.deltaTime;
         position.y += -Mathf.Cos(transform.eulerAngles.z * Mathf.Deg2Rad) * speed * Time.deltaTime;
         transform.position = position;
-        this.onDepthChanged(position.y);
+        this.onDepthChanged.Invoke(position.y);
 
         if (snakeSegments.Count == 0) return;
 
@@ -235,10 +235,11 @@ public class SnakeController : MonoBehaviour
             snakeSegments[i].SetActive(false);
         }
         // TODO: Explode
-        onDeath.Invoke();
         deathTime = Time.time;
         state = SnakeState.Dead;
         Debug.Log("Snake exploded!");
+
+        onDeath.Invoke();
     }
 
     public void Reset() {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Rendering;
@@ -5,6 +6,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField]
     int gold = 0;
 
 	private SnakeController snakeController;
@@ -14,6 +16,10 @@ public class PlayerController : MonoBehaviour
     float goldDeathMult = .5f;
     [SerializeField]
     float deathTime = .3f;
+    bool dying;
+
+    bool enableSpeedControl = false;
+    float maxSpeedControl = 0f;
 
     void OnSnakeGoldGained(int newGoldAmount)
     {
@@ -27,7 +33,48 @@ public class PlayerController : MonoBehaviour
     }
     void OnSnakeDeath()
     {
-        // ReturnToBase();
+        dying = true;
+        TriggerGoldReturn();
+    }
+
+    void OnUpgradePurchased(int cost, UpgradeType type, float newValue)
+    {
+        gold -= cost;
+        SetStat(type, newValue);
+    }
+
+    void SetStat(UpgradeType type, float value)
+    {
+        // TODO: change stats to match upgrade types
+        switch (type) {
+            case UpgradeType.ALCHEMY:
+                // TODO:
+                break;
+            case UpgradeType.DRILL_STRENGTH:
+                snakeController.drillStats.drillHardness = value;
+                break;
+            case UpgradeType.FUEL_AMOUNT:
+                // TODO:
+                break;
+            case UpgradeType.HEAT_CAPACITY:
+                snakeController.drillStats.maxDrillHeat = value;
+                break;
+            case UpgradeType.MAX_SPEED:
+                this.maxSpeedControl = value;
+                break;
+            case UpgradeType.MOVE_SPEED:
+                snakeController.maxSpeed = value;
+                break;
+            case UpgradeType.SALVAGE_AMOUNT:
+                goldDeathMult = value;
+                break;
+            case UpgradeType.SPEED_CONTROL:
+                enableSpeedControl = value > 0;
+                break;
+            case UpgradeType.TURN_SPEED:
+                snakeController.turnSpeed = value; 
+                break;
+        }
     }
 
     // Start is called before the first frame update
@@ -38,11 +85,19 @@ public class PlayerController : MonoBehaviour
         {
             Debug.LogError("SnakeController component not found on the GameObject.");
         }
+        // Setup Snake Event Hooks
         snakeController.onGoldGained += this.OnSnakeGoldGained;
         snakeController.onDepthChanged += this.OnSnakeDepthChanged;
         snakeController.onDeath += this.OnSnakeDeath;
         snakeController.Reset();
         snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
+
+        // Setup Upgrade Stats and Hooks
+        GameController gc = GameController.GetInstance();
+        gc.onUpgradePurchased += this.OnUpgradePurchased;
+        foreach (UpgradeType type in Enum.GetValues(typeof(UpgradeType))) {
+            this.SetStat(type, gc.GetValueForUpgradeType(type));
+        }
     }
 
     // Update is called once per frame
@@ -51,12 +106,11 @@ public class PlayerController : MonoBehaviour
         ControlInputs controlInputs = new ControlInputs();
 
         controlInputs.turn = Input.GetAxis("Horizontal");
-        controlInputs.targetSpeed = 1 + Input.GetAxis("Vertical") * .8f;
+        controlInputs.targetSpeed = 1 + (this.enableSpeedControl ? (Input.GetAxis("Vertical") * this.maxSpeedControl) : 0f);
         
         snakeController.SetControlInputs(controlInputs);
 
-        if (snakeController.state == SnakeState.Dead && (Time.time - snakeController.deathTime > deathTime))
-        {
+        if (snakeController.state == SnakeState.Dead && (Time.time - snakeController.deathTime > deathTime)) {
             ReturnToBase();
             snakeController.Reset();
             snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
@@ -69,11 +123,18 @@ public class PlayerController : MonoBehaviour
         gold += amt;
     }
 
-    void ReturnToBase() {
+    void TriggerGoldReturn()
+    {
         float goldFactor = snakeController.state == SnakeState.Alive ? 1f : goldDeathMult;
         int goldGain = Mathf.RoundToInt(snakeController.gold * goldFactor);
         int goldLost = snakeController.gold - goldGain;
         DepositGold(goldGain, goldLost, deathTime);
+    }
+
+    void ReturnToBase() {
+        if (!dying) {
+            TriggerGoldReturn();
+        }
         snakeController.gold = 0;
         this.OnSnakeGoldGained(0);
         snakeController.state = SnakeState.Alive;
@@ -81,5 +142,6 @@ public class PlayerController : MonoBehaviour
         snakeController.currentHeat = 0f;
         snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
         this.OnSnakeDepthChanged(0f);
+        dying = false;
     }
 }

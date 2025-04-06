@@ -6,16 +6,23 @@ using TMPro;
 
 public enum UpgradeType
 {
+    FUEL_AMOUNT,
     DRILL_STRENGTH,
     MOVE_SPEED,
     TURN_SPEED,
-    SALVAGE_RATE,
+    SALVAGE_AMOUNT,
+    SPEED_CONTROL,
+    HEAT_CAPACITY,
+    MAX_SPEED,
+    ALCHEMY,
 }
+
+public delegate void OnUpgradePurchased(int cost, UpgradeType type, float newValue);
 
 public class GameController : MonoBehaviour
 {
     [System.Serializable]
-    public struct UpgradeData {
+    public class UpgradeData {
         [System.Serializable]
         public struct Entry
         {
@@ -29,17 +36,20 @@ public class GameController : MonoBehaviour
         }
         
         public string name;
+        public string description;
         public UpgradeType type;
         public List<Entry> entries;
+        public float startingValue;
         public int owned;
+        public bool hidden;
 
         static string[] romanNum = new string[11] { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X" };
         public string GetShopName()
         {
             if (GetIsFullyOwned()) {
-                return name + (entries.Count > 1 ? (" " + romanNum[owned - 1]) : romanNum[0]);
-            } else {
                 return name + (entries.Count > 1 ? (" " + romanNum[owned]) : romanNum[0]);
+            } else {
+                return name + (entries.Count > 1 ? (" " + romanNum[owned + 1]) : romanNum[0]);
             }
         }
         public bool GetIsFullyOwned()
@@ -57,23 +67,9 @@ public class GameController : MonoBehaviour
         public float GetCurrentValue()
         {
             if (owned == 0) {
-                return 0f;
+                return startingValue;
             }
             return entries[owned - 1].value;
-        }
-
-        public UpgradeData(string _name, UpgradeType _type, int price, float value=1f, bool _owned=false){
-            name=_name;
-            type = _type;
-            entries = new List<Entry>() { new Entry(price, value) };
-            owned=_owned ? 0 : 1;
-        }
-        public UpgradeData(string _name, UpgradeType _type, List<Entry> _entries, int _owned = 0)
-        {
-            name = _name;
-            type = _type;
-            entries = _entries;
-            owned = _owned;
         }
     }
     [SerializeField]
@@ -82,6 +78,11 @@ public class GameController : MonoBehaviour
     static GameController instance;
     public GameObject shopGUI;
     public GameObject shopItem;
+
+    public OnUpgradePurchased onUpgradePurchased;
+
+    int playerGold = 0;
+
     public static GameController GetInstance()
     {
         return instance;
@@ -93,10 +94,6 @@ public class GameController : MonoBehaviour
             instance = this;
             DontDestroyOnLoad(this.gameObject);
             
-            upgradeList.Add(new UpgradeData("Move Speed", UpgradeType.MOVE_SPEED, 100));
-            // upgradeList.Add(new UpgradeData("Scan Range",100));
-            upgradeList.Add(new UpgradeData("Drill Strength", UpgradeType.DRILL_STRENGTH, new List<UpgradeData.Entry>() { new UpgradeData.Entry(200, .5f), new UpgradeData.Entry(300, .7f) }));
-
             shopGUI = GameObject.Find("Shop");
             shopGUI.SetActive(false);
             PopulateShop();
@@ -114,7 +111,8 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Q)){
+        if (Input.GetKeyDown(KeyCode.Q)){
+            PopulateShop();
             shopGUI.SetActive(!shopGUI.activeSelf);
         }
     }
@@ -126,15 +124,62 @@ public class GameController : MonoBehaviour
             Destroy(child.gameObject);
         }
         foreach(UpgradeData data in upgradeList){
+            if (data.hidden || data.entries.Count == 0) { 
+                continue; 
+            }
             GameObject item = Instantiate(shopItem,shopContent);
             item.transform.GetChild(0).GetComponent<TMP_Text>().text = data.GetShopName();
-            item.transform.GetChild(1).GetComponent<TMP_Text>().text = "$"+data.GetNextCost();
-            if(data.GetIsFullyOwned()){
+            int cost = data.GetNextCost();
+            item.transform.GetChild(1).GetComponent<TMP_Text>().text = "$"+cost;
+            if (data.GetIsFullyOwned()){
                 item.transform.GetChild(2).GetComponent<Button>().enabled = false;
                 item.transform.GetChild(2).GetChild(0).GetComponent<TMP_Text>().text = "SOLD";
             } else {
+                Button b = item.transform.GetChild(2).GetComponent<Button>();
+                b.enabled = cost <= playerGold;
+                b.onClick.RemoveAllListeners();
+                b.onClick.AddListener(delegate() { this.BuyUpgrade(data.type); }); 
                 item.transform.GetChild(2).GetChild(0).GetComponent<TMP_Text>().text = "BUY";
             }
         }
+    }
+
+    public void OpenShop(int goldAmount)
+    {
+        playerGold = goldAmount;
+        PopulateShop();
+        shopGUI.SetActive(true);
+    }
+
+    public void ExitShop()
+    {
+        shopGUI.SetActive(false);
+    }
+
+    void BuyUpgrade(UpgradeType upgradeType)
+    {
+        UpgradeData data = GetDataForUpgradeType(upgradeType);
+        int cost = data.GetNextCost();
+        data.owned++;
+        float value = data.GetCurrentValue();
+        this.onUpgradePurchased.Invoke(cost, upgradeType, value);
+        playerGold -= cost;
+        PopulateShop();
+    }
+
+    UpgradeData GetDataForUpgradeType(UpgradeType upgradeType)
+    {
+        foreach (UpgradeData upgrade in upgradeList) {
+            if (upgrade.type == upgradeType) {
+                return upgrade;
+            }
+        }
+        Debug.LogError("No upgrades found for upgrade type " + upgradeType.ToString());
+        return null;
+    }
+
+    public float GetValueForUpgradeType(UpgradeType upgradeType)
+    {
+        return GetDataForUpgradeType(upgradeType).GetCurrentValue();
     }
 }

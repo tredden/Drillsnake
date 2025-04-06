@@ -1,0 +1,143 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5466074846612439151
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3264425573512712372}
+  - component: {fileID: 6923848144011873382}
+  - component: {fileID: 3391522775198979608}
+  m_Layer: 0
+  m_Name: GameController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3264425573512712372
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5466074846612439151}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 469.59113, y: 521.52966, z: -1.7420053}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6923848144011873382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5466074846612439151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 746fa06c44f0348819d5e687e7d3af30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  upgradeList:
+  - name: Fuel Amount
+    description: 
+    type: 0
+    entries: []
+    startingValue: 0
+    owned: 0
+    hidden: 0
+  - name: Drill Strength
+    description: 
+    type: 1
+    entries: []
+    startingValue: 0.45
+    owned: 0
+    hidden: 0
+  - name: Move Speed
+    description: 
+    type: 2
+    entries: []
+    startingValue: 128
+    owned: 0
+    hidden: 0
+  - name: Turn Speed
+    description: 
+    type: 3
+    entries:
+    - price: 50
+      value: 180
+    startingValue: 60
+    owned: 0
+    hidden: 0
+  - name: Salvage Amonut
+    description: 
+    type: 4
+    entries:
+    - price: 100
+      value: 0.25
+    - price: 350
+      value: 0.35
+    - price: 800
+      value: 50
+    startingValue: 0.15
+    owned: 0
+    hidden: 0
+  - name: Speed Control
+    description: 
+    type: 5
+    entries:
+    - price: 1000
+      value: 1
+    startingValue: 0
+    owned: 0
+    hidden: 0
+  - name: Heat Capacity
+    description: 
+    type: 6
+    entries: []
+    startingValue: 5
+    owned: 0
+    hidden: 0
+  - name: Max Speed
+    description: 
+    type: 7
+    entries:
+    - price: 500
+      value: 0.8
+    startingValue: 0.4
+    owned: 0
+    hidden: 0
+  - name: Alchemy
+    description: 
+    type: 8
+    entries: []
+    startingValue: 0
+    owned: 0
+    hidden: 0
+  shopGUI: {fileID: 0}
+  shopItem: {fileID: 1978502541830044389, guid: 07add833e1eda4147adb66240f6b1ccd, type: 3}
+--- !u!114 &3391522775198979608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5466074846612439151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77d7f7eac6d7b3f4582bcf60bd8d0c50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bankGoldText: {fileID: 0}
+  unbankedGoldText: {fileID: 0}
+  lostGoldText: {fileID: 0}
+  depthText: {fileID: 0}
+  depthMult: 0.1
+  goldMult: 0.01
