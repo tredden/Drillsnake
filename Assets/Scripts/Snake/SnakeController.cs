@@ -1,10 +1,4 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
-using Unity.VisualScripting;
-using UnityEditor.PackageManager.Requests;
-using UnityEditor.Rendering;
 using UnityEngine;
 
 public struct ControlInputs

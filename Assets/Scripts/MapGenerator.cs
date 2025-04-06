@@ -375,7 +375,7 @@ public class MapGenerator : MonoBehaviour
         int cy0 = (int)Mathf.Clamp((minY / chunkScale), 0, chunks.GetLength(1) - 1);
         int cy1 = (int)Mathf.Clamp((maxY / chunkScale), 0, chunks.GetLength(1) - 1);
 
-        Debug.Log("Cam Bounds -- cx0: " + cx0 + ", cx1: " + cx1 + ", cy0: " + cy0 + " cy1: " + cy1);
+        //Debug.Log("Cam Bounds -- cx0: " + cx0 + ", cx1: " + cx1 + ", cy0: " + cy0 + " cy1: " + cy1);
 
         for (int cx = cx0; cx <= cx1; cx++) {
             for (int cy = cy0; cy <= cy1; cy++) {
