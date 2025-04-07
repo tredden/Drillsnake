@@ -143,6 +143,7 @@ public class GameController : MonoBehaviour
             costText.color = canAfford ? buyGreen : buyRed;
             if (data.GetIsFullyOwned()){
                 item.transform.GetChild(2).GetComponent<Button>().enabled = false;
+                costText.alpha = 0f;
                 item.transform.GetChild(2).GetChild(0).GetComponent<TMP_Text>().text = "SOLD";
             } else {
                 Button b = item.transform.GetChild(2).GetComponent<Button>();

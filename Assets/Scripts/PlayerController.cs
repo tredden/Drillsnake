@@ -53,6 +53,7 @@ public class PlayerController : MonoBehaviour
     {
         gold -= cost;
         SetStat(type, newValue);
+        uiController.SetGold((int)gold, 0, 0);
     }
 
     void SetStat(UpgradeType type, float value)

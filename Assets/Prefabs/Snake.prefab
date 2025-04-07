@@ -48,9 +48,9 @@ MonoBehaviour:
   drillStats:
     drillRadius: 8
     drillOffset: {x: 0, y: 0}
-    drillHardness: 0.5
-    maxDrillHeat: 0
-    heatRechargeDelay: 0
+    drillHardness: 0.45
+    maxDrillHeat: 5
+    heatRechargeDelay: 1
   segments: 5
   maxSpeed: 128
   acceleration: 48
@@ -65,6 +65,8 @@ MonoBehaviour:
   currentHeat: 0
   deltaHeat: 0
   gold: 0
+  goldMult: 0.1
+  shaking: 1
 --- !u!114 &-9100898603482006569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77,6 +79,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7d0252c5d7d34e4da214d2d950ca2ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gold: 0
   uiController: {fileID: 0}
   goldDeathMult: 0.5
   deathTime: 0.3
