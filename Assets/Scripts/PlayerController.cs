@@ -24,6 +24,9 @@ public class PlayerController : MonoBehaviour
 
     ControlInputs controlInputs = new ControlInputs();
 
+    [SerializeField]
+    private float depositPeriod = 0.1f;
+    private float lastDepositTime = 0;
 
     void OnSnakeGoldGained(int newGoldAmount)
     {
@@ -34,9 +37,19 @@ public class PlayerController : MonoBehaviour
     {
         float depth = MapGenerator.GetInstance().GetTargetSpawnPos().y - newDepth;
         uiController.SetDepth(depth);
+
         if (depth <= 0f)
         {
-            TriggerGoldReturn();
+            if (Time.time - lastDepositTime > depositPeriod)
+            {
+                lastDepositTime = Time.time;
+                if (snakeController.gold >= 100f) {
+                    Debug.Log("Depositing. snake: " + (int)snakeController.gold + " gold: " + (int)gold);
+                    snakeController.SetGold(snakeController.gold - 100f);
+                    gold += 100;
+                    uiController.SetGold((int)gold, (int)snakeController.gold, 0);
+                }
+            }
         }
     }
     void OnSnakeSegmentExploded(int totalSegments, int segmentsLeft, float goldPending)
@@ -171,7 +184,6 @@ public class PlayerController : MonoBehaviour
     {
         uiController.TriggerGoldDeposit((int)gold, amt, lost, time);
         gold += (int)amt;
-        snakeController.SetGold(snakeController.gold % 1f);
     }
 
     void TriggerGoldReturn()
@@ -180,6 +192,7 @@ public class PlayerController : MonoBehaviour
         int goldGain = Mathf.RoundToInt(snakeController.gold * goldFactor);
         int goldLost = (int) snakeController.gold - goldGain;
         DepositGold(goldGain, goldLost, deathTime);
+        snakeController.SetGold(snakeController.gold % 1f);
     }
 
     void ReturnToBase() {

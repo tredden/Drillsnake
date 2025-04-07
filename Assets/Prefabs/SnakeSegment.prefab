@@ -102,8 +102,8 @@ MonoBehaviour:
   backSpacing: 7
   owner: {fileID: 0}
   shakeParams:
-    amplitude: 0.35
-    frequency: 2
+    amplitude: 2
+    frequency: 16
     distancePhaseOffset: 0.05
 --- !u!58 &3753896232186195397
 CircleCollider2D:
