@@ -49,9 +49,6 @@ public class SnakeController : MonoBehaviour
     public float turnSpeed = 180f;
     
     [SerializeField]
-    private float maxExplodeTime = 2f;
-    
-    [SerializeField]
     private GameObject headPrefab;
     [SerializeField]
     private GameObject bodyPrefab;
