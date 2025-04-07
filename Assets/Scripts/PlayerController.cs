@@ -38,7 +38,7 @@ public class PlayerController : MonoBehaviour
     void OnSnakeSegmentExploded(int totalSegments, int segmentsLeft, float goldPending)
     {
         int snakeGoldAfterDeath = (int) (snakeController.gold * this.goldDeathMult);
-        float goldLossPending = goldPending - snakeGoldAfterDeath;
+        int goldLossPending = (int) goldPending - snakeGoldAfterDeath;
         int accedMissing = (int)(((totalSegments - segmentsLeft) / (float)totalSegments) * goldLossPending);
         uiController.SetGold(gold, (int)goldPending - accedMissing, accedMissing);
     }
