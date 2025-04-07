@@ -193,11 +193,18 @@ public class SnakeController : MonoBehaviour
 
             if (currentHeat >= drillStats.maxDrillHeat) {
                 StartExplode();
+                return;
             }
 
             currentFuel -= (currentHeat + minFuelBurnRate) * Time.deltaTime;
             if (currentFuel <= 0f) {
                 StartExplode();
+                return;
+            }
+
+            if (results.hitEdge) {
+                StartExplode();
+                return;
             }
         }
     }

@@ -12,6 +12,7 @@ public struct CarveResults
     public float totalHazard;
     public float totalThickness;
     public float averageNonzeroThickness;
+    public bool hitEdge;
 
     public CarveResults(float startingThickness = 0f, float startingGold = 0f, float startingHazard = 0f)
     {
@@ -23,6 +24,7 @@ public struct CarveResults
         totalGold = startingGold;
         totalHazard = startingHazard;
         totalThickness = startingThickness;
+        hitEdge = false;
     }
 }
 
@@ -399,21 +401,19 @@ public class MapGenerator : MonoBehaviour
         int yMax = Mathf.CeilToInt(collider.bounds.max.y);
         for (int xi = xMin; xi <= xMax; xi++) {
             int x = xi; // x0 + xi;
-            if (x < 0 || x >= pixelWidth) {
-                continue;
-            }
             int xc = x / chunkScale;
             int xr = x % chunkScale;
             for (int yi = yMin; yi < yMax; yi++) {
                 int y = yi; // y0 + yi;
-                if (y < 0 || y >= pixelHeight) {
-                    continue;
-                }
                 //if (xi*xi + yi*yi > radius*radius) {
                 //    continue;
                 //}
                 point.Set(x + .5f, y + .5f);
                 if (!collider.OverlapPoint(point)) {
+                    continue;
+                }
+                if (x < 0 || x >= pixelWidth || y < 0 || y >= pixelHeight) {
+                    output.hitEdge = true;
                     continue;
                 }
                 int yc = y / chunkScale;
