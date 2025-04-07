@@ -20,18 +20,7 @@ public class SceneController : MonoBehaviour
         if (instance == null) {
             instance = this;
             DontDestroyOnLoad(this.gameObject);
-            Scene s = SceneManager.GetActiveScene();
-            if (s.name == titleScene) {
-                AudioController audio = AudioController.GetInstance();
-                if(audio!=null){
-                    audio.SetMusic(2);
-                }
-            } else {
-                AudioController audio = AudioController.GetInstance();
-                if(audio!=null){
-                    audio.SetMusic(1);
-                }
-            }
+            
         } else {
             GameObject.Destroy(this.gameObject);
         }
@@ -39,7 +28,18 @@ public class SceneController : MonoBehaviour
             // Start is called before the first frame update
     void Start()
     {
-        
+        Scene s = SceneManager.GetActiveScene();
+        if (s.name == titleScene) {
+            AudioController audio = AudioController.GetInstance();
+            if(audio!=null){
+                audio.SetMusic(2);
+            }
+        } else {
+            AudioController audio = AudioController.GetInstance();
+            if(audio!=null){
+                audio.SetMusic(1);
+            }
+        }
     }
 
     // Update is called once per frame
