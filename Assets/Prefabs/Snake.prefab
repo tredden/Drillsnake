@@ -48,9 +48,9 @@ MonoBehaviour:
   drillStats:
     drillRadius: 8
     drillOffset: {x: 0, y: 0}
-    drillHardness: 0.45
-    maxDrillHeat: 5
-    heatRechargeDelay: 1
+    drillHardness: 0.5
+    maxDrillHeat: 20
+    heatRechargeDelay: 0
   segments: 5
   maxSpeed: 128
   acceleration: 48

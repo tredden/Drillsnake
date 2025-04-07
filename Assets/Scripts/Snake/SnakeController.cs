@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -70,6 +71,11 @@ public class SnakeController : MonoBehaviour
     public float currentHeat = 0;
     [SerializeField]
     float deltaHeat;
+    [SerializeField]
+    float hardnessSlowdownFactor = 500f;
+    [SerializeField]
+    float maxCooldownRate = 1f;
+
     float timeSinceHeatDamage = 0f;
 
     public float gold = 0;
@@ -79,6 +85,8 @@ public class SnakeController : MonoBehaviour
     public OnDepthChanged onDepthChanged;
     public OnSegmentExploded onSegmentExploded;
     public OnDeath onDeath;
+
+    private float averageThickness = 0f;
 
     public float shaking = 1f; // Segments read this to shake
 
@@ -137,15 +145,28 @@ public class SnakeController : MonoBehaviour
                 onGoldGained.Invoke((int)gold);
             }
 
-            deltaHeat = (results.averageThickness - drillStats.drillHardness) + (results.maxThickness - drillStats.drillHardness) * 4f;
-            if (deltaHeat > 0f) {
-                timeSinceHeatDamage = 0f;
+            // Thoughts on drilling
+            // If a pixel is too hard, it stays and does constant damage to the drill while it's in it (and slow down).
+            // If the average hardness of the pixels mined is above maybe 50% of the drill's rated hardness, it takes damage and slows.
+            // Otherwise, it's fine.
+            // There's a max cooldown rate.
+
+            if (results.didCarve) {
+                if (float.IsNaN(results.averageNonzeroThickness)) {
+					Debug.LogWarning("Average nonzero thickness is NaN");
+                } else {
+                    averageThickness = results.averageNonzeroThickness;
+                }
             }
-            if (timeSinceHeatDamage < drillStats.heatRechargeDelay) {
-                deltaHeat = Mathf.Max(0f, deltaHeat);
-            }
+
+            float thicknessDeficit = averageThickness - drillStats.drillHardness / 2f;
+            deltaHeat = Math.Max(25 * thicknessDeficit, -maxCooldownRate) * Time.deltaTime;
             currentHeat = Mathf.Clamp(currentHeat + deltaHeat, 0f, drillStats.maxDrillHeat);
-            timeSinceHeatDamage += Time.deltaTime;
+            if (deltaHeat > 0f) {
+                speed = Math.Max(maxSpeed / 5f, speed - deltaHeat * acceleration);
+            }
+
+            shaking = currentHeat / drillStats.maxDrillHeat;
 
             if (currentHeat >= drillStats.maxDrillHeat) {
                 StartExplode();
@@ -261,7 +282,8 @@ public class SnakeController : MonoBehaviour
         distanceSinceStart = 0f;
         speed = 0f;
         currentHeat = 0f;
-        timeSinceHeatDamage = drillStats.heatRechargeDelay + 1f;
+        //timeSinceHeatDamage = drillStats.heatRechargeDelay + 1f;
+        averageThickness = 0f;
 
         foreach (GameObject segment in snakeSegments)
         {
