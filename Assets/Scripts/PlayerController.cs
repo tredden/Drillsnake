@@ -8,8 +8,6 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField]
     int gold = 0;
-    [SerializeField]
-    float goldDisplayMult = 0.01f;
 
     private SnakeController snakeController;
     [SerializeField]
@@ -29,7 +27,7 @@ public class PlayerController : MonoBehaviour
 
     void OnSnakeGoldGained(int newGoldAmount)
     {
-        uiController.SetGold(gold, newGoldAmount);
+        uiController.SetGold((int)gold, newGoldAmount, 0);
     }
 
     void OnSnakeDepthChanged(float newDepth)
@@ -37,6 +35,14 @@ public class PlayerController : MonoBehaviour
         float depth = MapGenerator.GetInstance().GetTargetSpawnPos().y - newDepth;
         uiController.SetDepth(depth);
     }
+    void OnSnakeSegmentExploded(int totalSegments, int segmentsLeft, float goldPending)
+    {
+        int snakeGoldAfterDeath = (int) (snakeController.gold * this.goldDeathMult);
+        float goldLossPending = goldPending - snakeGoldAfterDeath;
+        int accedMissing = (int)(((totalSegments - segmentsLeft) / (float)totalSegments) * goldLossPending);
+        uiController.SetGold(gold, (int)goldPending - accedMissing, accedMissing);
+    }
+
     void OnSnakeDeath()
     {
         dying = true;
@@ -85,7 +91,7 @@ public class PlayerController : MonoBehaviour
 
     void OpenShop()
     {
-        GameController.GetInstance().OpenShop((int)(gold * this.goldDisplayMult));
+        GameController.GetInstance().OpenShop((int)(gold));
     }
 
     void OnShopOpen()
@@ -112,6 +118,7 @@ public class PlayerController : MonoBehaviour
         // Setup Snake Event Hooks
         snakeController.onGoldGained += this.OnSnakeGoldGained;
         snakeController.onDepthChanged += this.OnSnakeDepthChanged;
+        snakeController.onSegmentExploded += this.OnSnakeSegmentExploded;
         snakeController.onDeath += this.OnSnakeDeath;
         snakeController.Reset();
         snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
@@ -147,15 +154,15 @@ public class PlayerController : MonoBehaviour
 
     void DepositGold(int amt, int lost, float time)
     {
-        uiController.TriggerGoldDeposit(gold, amt, lost, time);
-        gold += amt;
+        uiController.TriggerGoldDeposit((int)gold, amt, lost, time);
+        gold += (int)amt;
     }
 
     void TriggerGoldReturn()
     {
         float goldFactor = snakeController.state == SnakeState.Alive ? 1f : goldDeathMult;
         int goldGain = Mathf.RoundToInt(snakeController.gold * goldFactor);
-        int goldLost = snakeController.gold - goldGain;
+        int goldLost = (int) snakeController.gold - goldGain;
         DepositGold(goldGain, goldLost, deathTime);
     }
 
@@ -163,7 +170,8 @@ public class PlayerController : MonoBehaviour
         if (!dying) {
             TriggerGoldReturn();
         }
-        snakeController.gold = 0;
+        // let us keep partially accumulated gold
+        snakeController.gold = snakeController.gold % 1f;
         this.OnSnakeGoldGained(0);
         snakeController.state = SnakeState.Alive;
         snakeController.speed = 0f;

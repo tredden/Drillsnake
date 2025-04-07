@@ -15,7 +15,7 @@ public class UIController : MonoBehaviour {
     [SerializeField]
     float depthMult = 0.1f;
     [SerializeField]
-    float goldMult = 0.01f;
+    float goldMult = 1f;
 
     int currentBankedGold;
     int currentUnbankedGold;
@@ -35,7 +35,7 @@ public class UIController : MonoBehaviour {
        if (currentDepositTime <= targetDepositTime + .05) {
             float frac = Mathf.Clamp01(currentDepositTime / targetDepositTime);
             int diff = (int) (Mathf.RoundToInt((Mathf.Lerp(0f, currentUnbankedGold, frac) * goldMult)) / goldMult);
-            SetGold(currentBankedGold + diff, currentUnbankedGold - diff);
+            SetGold(currentBankedGold + diff, currentUnbankedGold - diff, currentLostGold);
             currentDepositTime += Time.deltaTime;
             if (currentLostGold > 0) {
                 lostGoldText.alpha = (1f - frac);
@@ -45,10 +45,16 @@ public class UIController : MonoBehaviour {
        }
     }
 
-    public void SetGold(int banked, int current)
+    public void SetGold(int banked, int current, int lost)
     {
         bankGoldText.text = "$" + (int)(banked*goldMult);
         unbankedGoldText.text = "+$" + (int)(current*goldMult);
+        if (lost > 0) {
+            lostGoldText.text = "-$" + (int)(lost * goldMult);
+            lostGoldText.alpha = 1f;
+        } else {
+            lostGoldText.alpha = 0f;
+        }
     }
 
     public void TriggerGoldDeposit(int banked, int current, int lost, float time)
