@@ -25,8 +25,9 @@ public class PlayerController : MonoBehaviour
     ControlInputs controlInputs = new ControlInputs();
 
     [SerializeField]
-    private float depositPeriod = 0.1f;
+    private float depositPeriod = 1f;
     private float lastDepositTime = 0;
+    bool returnElligible = false;
 
     void OnSnakeGoldGained(int newGoldAmount)
     {
@@ -38,17 +39,22 @@ public class PlayerController : MonoBehaviour
         float depth = MapGenerator.GetInstance().GetTargetSpawnPos().y - newDepth;
         uiController.SetDepth(depth);
 
-        if (depth <= 0f)
+        if (depth > 100f) {
+            returnElligible = true;
+        }
+
+        if (returnElligible && depth <= 0f)
         {
             if (Time.time - lastDepositTime > depositPeriod)
             {
                 lastDepositTime = Time.time;
-                if (snakeController.gold >= 100f) {
-                    Debug.Log("Depositing. snake: " + (int)snakeController.gold + " gold: " + (int)gold);
-                    snakeController.SetGold(snakeController.gold - 100f);
-                    gold += 100;
-                    uiController.SetGold((int)gold, (int)snakeController.gold, 0);
-                }
+                //if (snakeController.gold >= 100f) {
+                //    Debug.Log("Depositing. snake: " + (int)snakeController.gold + " gold: " + (int)gold);
+                //    snakeController.SetGold(snakeController.gold - 100f);
+                //    gold += 100;
+                //    uiController.SetGold((int)gold, (int)snakeController.gold, 0);
+                //}
+                ReturnToBase();
             }
         }
     }
@@ -199,13 +205,18 @@ public class PlayerController : MonoBehaviour
         if (!dying) {
             TriggerGoldReturn();
         }
+        lastDepositTime = Time.time;
         // let us keep partially accumulated gold
         this.OnSnakeGoldGained(0);
         snakeController.state = SnakeState.Alive;
         snakeController.speed = 0f;
         snakeController.currentHeat = 0f;
-        snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
-        this.OnSnakeDepthChanged(0f);
+        returnElligible = false;
+        if (dying) {
+            snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
+        }
+        snakeController.transform.rotation = Quaternion.identity;
+        this.OnSnakeDepthChanged(snakeController.transform.position.y);
         dying = false;
         snakeController.Reset();
         OpenShop();

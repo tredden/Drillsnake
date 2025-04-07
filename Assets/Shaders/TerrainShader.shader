@@ -248,7 +248,7 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 float dens = density(uv);
 
                 // Air Color
-                if (dens < 0.0f) {
+                if (uv.y < 0.0f) {
                     float3 airColorBase = float3(0.0, 0.0, 0.0);
                     // float3 airColor = exp(log(airColorBase) * -dens * 0.01f);
                     return fixed4(airColorBase, 0.5);
