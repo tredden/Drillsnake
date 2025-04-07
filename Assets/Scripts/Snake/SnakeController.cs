@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SearchService;
 using UnityEngine;
 
 public struct ControlInputs
@@ -100,11 +101,13 @@ public class SnakeController : MonoBehaviour
         if (state == SnakeState.Dead || state == SnakeState.Exploding || state == SnakeState.Shopping) {
             speed = 0;
             if(gameObject.GetComponent<PlayerController>()!=null){
+                AudioController.GetInstance().SetDigSound(0);
                 snakeSegments[0].GetComponentInChildren<Animator>().SetBool("isDrilling",false);
             }
             return;
         }
         if(gameObject.GetComponent<PlayerController>()!=null){
+            AudioController.GetInstance().SetDigSound(speed);
             snakeSegments[0].GetComponentInChildren<Animator>().SetBool("isDrilling",true);
         }
         // Apply control inputs
@@ -262,11 +265,12 @@ public class SnakeController : MonoBehaviour
         state = SnakeState.Exploding;
         float delay;
         int totalSegments = snakeSegments.Count;
+        AudioController sound = AudioController.GetInstance();
         for (int i = 0; i < totalSegments; i++)
         {
             delay = 1f/(i+1);
-            Debug.Log(delay);
             yield return new WaitForSeconds(delay);
+            sound.PlaySound("explode");
             Instantiate(explosionPrefab,snakeSegments[i].transform.position,Quaternion.identity);
             snakeSegments[i].SetActive(false);
             onSegmentExploded.Invoke(totalSegments, totalSegments - i - 1, gold);
