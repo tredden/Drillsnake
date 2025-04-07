@@ -30,6 +30,7 @@ public enum SnakeState
 
 public delegate void OnGoldGained(int newGoldAmount);
 public delegate void OnDepthChanged(float newDepth);
+public delegate void OnSegmentExploded(int totalSegments, int segmentsLeft, float goldPending);
 public delegate void OnDeath();
 
 public class SnakeController : MonoBehaviour
@@ -71,10 +72,12 @@ public class SnakeController : MonoBehaviour
     float deltaHeat;
     float timeSinceHeatDamage = 0f;
 
-    public int gold = 0;
+    public float gold = 0;
+    public float goldMult = 0.1f;
 
     public OnGoldGained onGoldGained;
     public OnDepthChanged onDepthChanged;
+    public OnSegmentExploded onSegmentExploded;
     public OnDeath onDeath;
 
     public float shaking = 1f; // Segments read this to shake
@@ -83,6 +86,7 @@ public class SnakeController : MonoBehaviour
     void Start()
     {
 		SetLength(segments);
+        Reset();
     }
 
     // Update is called once per frame
@@ -125,12 +129,12 @@ public class SnakeController : MonoBehaviour
                  drillStats.drillRadius, drillCollider, drillStats.drillHardness);
 
             // Elongate from gold
-            int addedGold = Mathf.RoundToInt(results.totalGold); // TODO: should this acc as a float?
+            float addedGold = results.totalGold * goldMult;
             if (addedGold > 0) {
                 gold += addedGold;
-                this.SetLength(gold / 1000 + 3);
+                this.SetLength(Mathf.Max(segments, (int)(gold / 100f) + 3));
                 // broadcast change for player controller or UI
-                onGoldGained.Invoke(gold);
+                onGoldGained.Invoke((int)gold);
             }
 
             deltaHeat = (results.averageThickness - drillStats.drillHardness) + (results.maxThickness - drillStats.drillHardness) * 4f;
@@ -144,7 +148,7 @@ public class SnakeController : MonoBehaviour
             timeSinceHeatDamage += Time.deltaTime;
 
             if (currentHeat >= drillStats.maxDrillHeat) {
-                StartCoroutine(Explode());
+                StartExplode();
             }
         }
     }
@@ -218,8 +222,13 @@ public class SnakeController : MonoBehaviour
         {
             // Explode the snake
             Debug.Log("Snake collided with itself!");
-            StartCoroutine(Explode());
+            StartExplode();
         }
+    }
+
+    public void StartExplode()
+    {
+        StartCoroutine(Explode());
     }
 
     public IEnumerator Explode() {
@@ -228,13 +237,15 @@ public class SnakeController : MonoBehaviour
 
         state = SnakeState.Exploding;
         float delay;
-        for (int i = 0; i < snakeSegments.Count; i++)
+        int totalSegments = snakeSegments.Count;
+        for (int i = 0; i < totalSegments; i++)
         {
             delay = 1f/(i+1);
             Debug.Log(delay);
             yield return new WaitForSeconds(delay);
             Instantiate(explosionPrefab,snakeSegments[i].transform.position,Quaternion.identity);
             snakeSegments[i].SetActive(false);
+            onSegmentExploded.Invoke(totalSegments, totalSegments - i - 1, gold);
         }
         // TODO: Explode
         deathTime = Time.time;
