@@ -39,7 +39,7 @@ public class PlayerController : MonoBehaviour
         float depth = MapGenerator.GetInstance().GetTargetSpawnPos().y - newDepth;
         uiController.SetDepth(depth);
 
-        if (depth > 100f) {
+        if (depth > 1f) {
             returnElligible = true;
         }
 

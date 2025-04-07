@@ -58,6 +58,8 @@ public class SnakeController : MonoBehaviour
     private GameObject explosionPrefab;
     private List<GameObject> snakeSegments = new List<GameObject>();
     Collider2D drillCollider;
+    ParticleSystem drillDirtParticles;
+    ParticleSystem drillGoldParticles;
     private ControlInputs controlInputs;
     public float speed = 0f;
     private SnakeState _state = SnakeState.Spawning;
@@ -179,6 +181,7 @@ public class SnakeController : MonoBehaviour
 					Debug.LogWarning("Average nonzero thickness is NaN");
                 } else {
                     averageThickness = results.averageNonzeroThickness;
+                    FireParticlesBasedOnDigging(results);
                 }
             }
 
@@ -209,6 +212,21 @@ public class SnakeController : MonoBehaviour
         }
     }
 
+    void FireParticlesBasedOnDigging(CarveResults results)
+    {
+        float particlesPerThickness = 2f;
+        int dirtParticlesToRelease = (int)(results.totalThickness * particlesPerThickness);
+        if (dirtParticlesToRelease >= 1) {
+            drillDirtParticles.Emit(dirtParticlesToRelease);
+        }
+
+        float particlesPerGold = 2f;
+        int goldParticlesToRelease = (int)(results.totalGold * particlesPerGold);
+        if (goldParticlesToRelease >= 1) {
+            drillGoldParticles.Emit(goldParticlesToRelease);
+        }
+    }
+
     private void AppendSegments(int add)
     {
         int count = snakeSegments.Count;
@@ -221,6 +239,8 @@ public class SnakeController : MonoBehaviour
             snakeSegments.Add(segment);
             if (i == 0) {
                 drillCollider = segment.transform.GetChild(0).GetComponent<Collider2D>();
+                drillDirtParticles = segment.transform.GetChild(1).GetComponent<ParticleSystem>();
+                drillGoldParticles = segment.transform.GetChild(2).GetComponent<ParticleSystem>();
             }
 
             GameObject currentSegment = segment;
