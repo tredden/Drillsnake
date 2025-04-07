@@ -261,8 +261,8 @@ MonoBehaviour:
   backSpacing: 7
   owner: {fileID: 0}
   shakeParams:
-    amplitude: 0
-    frequency: 0
+    amplitude: 4
+    frequency: 16
     distancePhaseOffset: 0
 --- !u!50 &8124940882594916911
 Rigidbody2D:

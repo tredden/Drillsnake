@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SearchService;
 using UnityEngine;
 
 public struct ControlInputs
@@ -103,17 +104,26 @@ public class SnakeController : MonoBehaviour
 		SetLength(segments);
     }
 
+    public void SetGold(float value)
+    {
+        gold = value;
+        onGoldGained.Invoke((int)gold);
+        SetLength(Mathf.Max(segments, (int)(gold / 100f) + 5));
+    }
+
     // Update is called once per frame
     void Update()
     {
         if (state == SnakeState.Spawning || state == SnakeState.Dead || state == SnakeState.Exploding || state == SnakeState.Shopping) {
             speed = 0;
             if(gameObject.GetComponent<PlayerController>()!=null){
+                AudioController.GetInstance().SetDigSound(0);
                 snakeSegments[0].GetComponentInChildren<Animator>().SetBool("isDrilling",false);
             }
             return;
         }
         if(gameObject.GetComponent<PlayerController>()!=null){
+            AudioController.GetInstance().SetDigSound(speed);
             snakeSegments[0].GetComponentInChildren<Animator>().SetBool("isDrilling",true);
         }
         // Apply control inputs
@@ -151,10 +161,7 @@ public class SnakeController : MonoBehaviour
             // Elongate from gold
             float addedGold = results.totalGold * goldMult;
             if (addedGold > 0) {
-                gold += addedGold;
-                this.SetLength(Mathf.Max(segments, (int)(gold / 100f) + 3));
-                // broadcast change for player controller or UI
-                onGoldGained.Invoke((int)gold);
+                SetGold(gold + addedGold);
             }
 
             // Thoughts on drilling
@@ -271,10 +278,12 @@ public class SnakeController : MonoBehaviour
         state = SnakeState.Exploding;
         float delay;
         int totalSegments = snakeSegments.Count;
+        AudioController sound = AudioController.GetInstance();
         for (int i = 0; i < totalSegments; i++)
         {
             delay = 1f/(i+1);
             yield return new WaitForSeconds(delay);
+            sound.PlaySound("explode");
             Instantiate(explosionPrefab,snakeSegments[i].transform.position,Quaternion.identity);
             snakeSegments[i].SetActive(false);
             onSegmentExploded.Invoke(totalSegments, totalSegments - i - 1, gold);
