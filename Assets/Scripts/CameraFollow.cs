@@ -15,12 +15,36 @@ public class CameraFollowScript : MonoBehaviour
 
     [SerializeField]
     RectInt trackingPixelBounds;
+    [SerializeField]
+    bool floatWindow;
+    [SerializeField]
+    float windowFloatSpeed = 60f;
+
+    float flminX;
+    float flmaxX;
+    float flminY;
+    float flmaxY;
+
+    float flx;
+    float fly;
+
 
     private void Start()
     {
         cam = GetComponent<Camera>();
         pixelCam = GetComponent<PixelPerfectCamera>();
         FixMapBounds();
+
+        flx = trackingPixelBounds.x;
+        fly = trackingPixelBounds.y;
+
+        float screenW = cam.pixelWidth / pixelCam.pixelRatio;
+        flminX = Mathf.Min(trackingPixelBounds.xMin, screenW - trackingPixelBounds.xMax);
+        flmaxX = screenW - flminX - trackingPixelBounds.width;
+
+        float screenH = cam.pixelHeight / pixelCam.pixelRatio;
+        flminY = Mathf.Min(trackingPixelBounds.yMin, screenH - trackingPixelBounds.yMax);
+        flmaxY = screenH - flminY - trackingPixelBounds.height;
     }
 
     void FixMapBounds()
@@ -48,5 +72,16 @@ public class CameraFollowScript : MonoBehaviour
             cam.transform.Translate(delta);
         }
         FixMapBounds();
+
+        if (floatWindow) {
+            float dt = Time.deltaTime;
+            // our specific sprite is down-forward vel for some reason
+            float vx = -target.up.x * dt * windowFloatSpeed * -1f;
+            float vy = -target.up.y * dt * windowFloatSpeed * -1f;
+            flx = Mathf.Clamp(flx + vx, flminX, flmaxX);
+            fly = Mathf.Clamp(fly + vy, flminY, flmaxY);
+            trackingPixelBounds.x = Mathf.RoundToInt(flx);
+            trackingPixelBounds.y = Mathf.RoundToInt(fly);
+        }
     }
 }

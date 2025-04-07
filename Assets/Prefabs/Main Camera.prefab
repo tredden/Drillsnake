@@ -177,7 +177,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 0}
   trackingPixelBounds:
-    x: 160
+    x: 120
     y: 200
     width: 320
     height: 120
+  floatWindow: 1
+  windowFloatSpeed: 45
