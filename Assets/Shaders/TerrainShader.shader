@@ -267,10 +267,11 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                  uint mat = (dens < 8.0f) ? 1u : (dens < 32.0f) ? 2u : (dens < 64.0f) ? 3u : (dens < 128.0f) ? 4u : 5u;
 
                  // Voronoi noise influence
-                 float rock_density_mult = 1.f * (1.f + uv.y / 8192.f);
+                 float rock_density_mult = 1.f * (1.f + uv.y / (8192.f / effectivePixelFactor));
                  float rock_size_mult = 1.f;
-                 float rock_to_gold_threshold = .1f * (1.f + uv.y / 16384.f);
-                 float rock_to_hard_threshold = .1f * (1.f + uv.y / 8192.f);
+                 float rock_to_gold_threshold = .1f * (1.f + uv.y / (16384.f / effectivePixelFactor));
+                 float rock_to_hard_threshold = .1f * (1.f + uv.y / (8192.f / effectivePixelFactor));
+                 float min_rock_depth = 8.f / effectivePixelFactor;
 
 
                 // float2 vn_cell = floor(uv * .1f * rock_density_mult);
@@ -297,10 +298,12 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                  float2 vn_pos = voronoiNearest(uv * 0.1f * rock_density_mult, _Seed ^ 1u);
                  float d_voronoi = length(vn_pos - uv * 0.1f * rock_density_mult);
 
+                 float no_early_rocks_savior = vn_pos.y < min_rock_depth ? 0.f : 1.f;
+
                  t = lerp(t, vrand(vn_cell, _Seed ^ mat), 0.35f);
 
                  // Calculate rock radius and modify color if inside rock
-                 float r_rock = vrand(vn_cell, _Seed ^ 3u) * 0.2f * rock_density_mult * rock_size_mult;
+                 float r_rock = vrand(vn_cell, _Seed ^ 3u) * 0.2f * rock_density_mult * rock_size_mult * no_early_rocks_savior;
                  float3 col;
                  if (d_voronoi > r_rock) { col = tsample_soil(t); } // Soil
                  else { // Rock
