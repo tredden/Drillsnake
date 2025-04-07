@@ -90,6 +90,7 @@ public class MapGenerator : MonoBehaviour
         } 
         if (seed == 0) {
             GenerateSeed();
+            TextureReader.GetInstance().seed = this.seed;
         }
         AllocateTextures();
         // GenerateSpriteCells();
