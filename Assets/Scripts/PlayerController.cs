@@ -181,7 +181,7 @@ public class PlayerController : MonoBehaviour
         
         snakeController.SetControlInputs(controlInputs);
 
-        if (snakeController.state == SnakeState.Alive) {
+        if (snakeController.state == SnakeState.Alive && !shopping) {
             uiController.SetFuel(snakeController.maxFuel, snakeController.currentFuel);
         }
 
