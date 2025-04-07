@@ -121,10 +121,9 @@ public class GameController : MonoBehaviour
         //}
     }
 
+    Color buyGreen = new Color(0.4156863f, 0.7450981f, 0.1882353f, 1f);
+    Color buyRed = new Color(0.7450981f, 0.2853141f, 0.1882353f, 1f);
     void PopulateShop(){
-        Color buyGreen = new Color(0.4156863f, 0.7450981f, 0.1882353f, 1f);
-        Color buyRed = new Color(0.7450981f, 0.2853141f, 0.1882353f, 1f);
-
         Transform shopContent = shopGUI.transform.GetChild(0).GetChild(0).GetChild(0);
         foreach(Transform child in shopContent)
         {

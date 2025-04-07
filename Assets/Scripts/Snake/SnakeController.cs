@@ -62,6 +62,11 @@ public class SnakeController : MonoBehaviour
     private ControlInputs controlInputs;
     public float speed = 0f;
     private SnakeState _state = SnakeState.Spawning;
+
+    public float maxFuel;
+    public float currentFuel;
+    public float minFuelBurnRate = 1f;
+
     public SnakeState state
     {
         get => _state;
@@ -190,6 +195,11 @@ public class SnakeController : MonoBehaviour
             if (currentHeat >= drillStats.maxDrillHeat) {
                 StartExplode();
             }
+
+            currentFuel -= (currentHeat + minFuelBurnRate) * Time.deltaTime;
+            if (currentFuel <= 0f) {
+                StartExplode();
+            }
         }
     }
 
@@ -300,6 +310,7 @@ public class SnakeController : MonoBehaviour
         distanceSinceStart = 0f;
         speed = 0f;
         currentHeat = 0f;
+        currentFuel = maxFuel;
         //timeSinceHeatDamage = drillStats.heatRechargeDelay + 1f;
         averageThickness = 0f;
 

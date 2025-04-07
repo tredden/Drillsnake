@@ -90,7 +90,8 @@ public class PlayerController : MonoBehaviour
                 snakeController.drillStats.drillHardness = value;
                 break;
             case UpgradeType.FUEL_AMOUNT:
-                // TODO:
+                snakeController.maxFuel = value;
+                snakeController.currentFuel = value;
                 break;
             case UpgradeType.HEAT_CAPACITY:
                 snakeController.drillStats.maxDrillHeat = value;
@@ -180,6 +181,10 @@ public class PlayerController : MonoBehaviour
         
         snakeController.SetControlInputs(controlInputs);
 
+        if (snakeController.state == SnakeState.Alive) {
+            uiController.SetFuel(snakeController.maxFuel, snakeController.currentFuel);
+        }
+
         if (snakeController.state == SnakeState.Dead && (Time.time - snakeController.deathTime > deathTime)) {
             ReturnToBase();
         }
@@ -201,6 +206,12 @@ public class PlayerController : MonoBehaviour
         snakeController.SetGold(snakeController.gold % 1f);
     }
 
+    void TriggerFuelRefill()
+    {
+        // TODO: constant fill rate instead?
+        uiController.TriggerFuelReset(snakeController.maxFuel, snakeController.currentFuel, deathTime);
+    }
+
     void ReturnToBase() {
         if (!dying) {
             TriggerGoldReturn();
@@ -208,6 +219,7 @@ public class PlayerController : MonoBehaviour
         lastDepositTime = Time.time;
         // let us keep partially accumulated gold
         this.OnSnakeGoldGained(0);
+        TriggerFuelRefill();
         snakeController.state = SnakeState.Alive;
         snakeController.speed = 0f;
         snakeController.currentHeat = 0f;

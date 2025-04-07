@@ -13,6 +13,8 @@ public class UIController : MonoBehaviour {
     [SerializeField]
     TMPro.TextMeshProUGUI depthText;
     [SerializeField]
+    UnityEngine.UI.RawImage fuelGuage;
+    [SerializeField]
     float depthMult = 0.1f;
     [SerializeField]
     float goldMult = 1f;
@@ -23,10 +25,17 @@ public class UIController : MonoBehaviour {
     float targetDepositTime;
     float currentDepositTime;
 
+    float currentFuelLevel;
+    float currentMaxFuel;
+    float targetFuelTime;
+    float currentFuelTime;
+
+    Vector2 originalFuelBarScale;
     // Start is called before the first frame update
     void Start()
     {
         lostGoldText.alpha = 0f;
+        originalFuelBarScale = fuelGuage.rectTransform.sizeDelta;
     }
 
     // Update is called once per frame
@@ -43,6 +52,28 @@ public class UIController : MonoBehaviour {
                 lostGoldText.alpha = 0f;
             }
        }
+       if (currentFuelTime <= targetFuelTime + .05) {
+            float frac = Mathf.Clamp01(currentFuelTime / targetFuelTime);
+            SetFuel(currentMaxFuel, Mathf.Lerp(frac, currentFuelLevel, currentMaxFuel));
+            currentFuelTime += Time.deltaTime;
+        }
+    }
+
+    Color buyGreen = new Color(0.4156863f, 0.7450981f, 0.1882353f, 1f);
+    Color buyRed = new Color(0.7450981f, 0.2853141f, 0.1882353f, 1f);
+    public void SetFuel(float maxFuel, float currentFuel)
+    {
+        float t = currentFuel / maxFuel;
+        Color c = Color.Lerp(buyRed, buyGreen, t * 1.4f - .2f);
+        fuelGuage.rectTransform.sizeDelta = new Vector2(originalFuelBarScale.x, originalFuelBarScale.y * t);
+        fuelGuage.color = c;
+    }
+    public void TriggerFuelReset(float maxFuel, float currentFuel, float time)
+    {
+        currentMaxFuel = maxFuel;
+        currentFuelLevel = currentFuel;
+        targetFuelTime = time;
+        currentFuelTime = 0f;
     }
 
     public void SetGold(int banked, int current, int lost)
