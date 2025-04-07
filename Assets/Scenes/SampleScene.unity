@@ -2641,22 +2641,6 @@ PrefabInstance:
       propertyPath: shopGUI
       value: 
       objectReference: {fileID: 1324319475}
-    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
-      propertyPath: upgradeList.Array.data[4].startingValue
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
-      propertyPath: upgradeList.Array.data[4].entries.Array.data[0].value
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
-      propertyPath: upgradeList.Array.data[4].entries.Array.data[1].value
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
-      propertyPath: upgradeList.Array.data[4].entries.Array.data[2].value
-      value: 0.7
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
