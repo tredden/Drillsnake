@@ -20,12 +20,24 @@ public class AudioController : MonoBehaviour
     AudioSource oneshots;
     AudioSource digsource;
     bool isDigging;
+    int currSong;
     void Awake()
     {
         // enforce singleton across scenes
         if (instance == null) {
             instance = this;
             DontDestroyOnLoad(this.gameObject);
+            
+            AudioSource[] audioSources = GetComponents<AudioSource>();
+            bgm = audioSources[0];
+            bgm.loop=true;
+            bgm.volume=0.5f;
+            
+            oneshots = audioSources[1];
+            digsource = audioSources[2];
+            
+            digsource.clip = digsfx;
+            digsource.loop = true;
         } else {
             GameObject.Destroy(this.gameObject);
         }
@@ -33,17 +45,7 @@ public class AudioController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        AudioSource[] audioSources = GetComponents<AudioSource>();
-        bgm = audioSources[0];
-        bgm.clip = songs[0];
-        bgm.loop=true;
-        bgm.volume=0.5f;
-        bgm.Play();
-        oneshots = audioSources[1];
-        digsource = audioSources[2];
         
-        digsource.clip = digsfx;
-        digsource.loop = true;
     }
 
     // Update is called once per frame
@@ -53,6 +55,7 @@ public class AudioController : MonoBehaviour
     }
 
     public void SetDigSound(float digspeed){
+        Debug.Log(digspeed);
         if(digspeed<=0){
             isDigging=false;
             digsource.Stop();
@@ -72,5 +75,15 @@ public class AudioController : MonoBehaviour
                 oneshots.PlayOneShot(sfx[0]);
                 break;
         }
+    }
+
+    public void SetMusic(int music){
+        if(music==0){
+            currSong=0;
+            bgm.Stop();
+        }
+        currSong=music;
+        bgm.clip=songs[music-1];
+        bgm.Play();
     }
 }
