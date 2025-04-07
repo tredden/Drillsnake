@@ -196,15 +196,21 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 return qbez(dgold, mgold, lgold, t);
             }
             float3 tsample_soil(float t) {
-                float3 dsoil = float3(0, 0, .2f);
-                float3 msoil = float3(0, 0, .15f);
-                float3 lsoil = float3(0, 0, .1f);
+                float3 dsoil = float3(0, 0, .15);
+                float3 msoil = float3(0, 0, .1f);
+                float3 lsoil = float3(0, 0, .05f);
                 return qbez(dsoil, msoil, lsoil, t);
             }
             float3 tsample_rock(float t) {
+                float3 drock = float3(0, 0, .8f);
+                float3 mrock = float3(0, 0, .75f);
+                float3 lrock = float3(0, 0, .7f);
+                return qbez(drock, mrock, lrock, t);
+            }
+            float3 tsample_denserock(float t) {
                 float3 drock = float3(0, 0, 1.0f);
-                float3 mrock = float3(0, 0, .9f);
-                float3 lrock = float3(0, 0, .8f);
+                float3 mrock = float3(0, 0, .97f);
+                float3 lrock = float3(0, 0, .95f);
                 return qbez(drock, mrock, lrock, t);
             }
             float3 tsample_grass(float t) {
@@ -242,7 +248,7 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 float dens = density(uv);
 
                 // Air Color
-                if (dens < 0.0f) {
+                if (uv.y < 0.0f) {
                     float3 airColorBase = float3(0.0, 0.0, 0.0);
                     // float3 airColor = exp(log(airColorBase) * -dens * 0.01f);
                     return fixed4(airColorBase, 0.5);
@@ -261,23 +267,56 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                  uint mat = (dens < 8.0f) ? 1u : (dens < 32.0f) ? 2u : (dens < 64.0f) ? 3u : (dens < 128.0f) ? 4u : 5u;
 
                  // Voronoi noise influence
-                 float2 vn_cell = floor(uv * 0.1f); float2 vn_pos = voronoiNearest(uv * 0.1f, 1u);
-                 float d_voronoi = length(vn_pos - uv * 0.1f);
+                 float rock_density_mult = 1.f * (1.f + uv.y / 8192.f);
+                 float rock_size_mult = 1.f;
+                 float rock_to_gold_threshold = .1f * (1.f + uv.y / 16384.f);
+                 float rock_to_hard_threshold = .1f * (1.f + uv.y / 8192.f);
+
+
+                // float2 vn_cell = floor(uv * .1f * rock_density_mult);
+                // float2 vn_pos = voronoiNearest(uv * .1f * rock_density_mult, _Seed ^ 1u);
+                // float d_voronoi = length(vn_pos - uv * rock_density_mult);
+                // t = lerp(t, vrand(vn_cell, _Seed ^ mat), 0.35f);
+
+                //// Calculate rock radius and modify color if inside rock
+                //float r_rock = vrand(vn_cell, _Seed ^ 3u) * .2f * rock_density_mult * rock_size_mult;
+                //float3 col;
+                // if (d_voronoi > r_rock) { col = tsample_soil(t); } // Soil
+                // else { // Rock
+                //      float rock_t = 1.0f - (1.0f - t) * (1.0f - t);
+                //      rock_t += (r_rock - d_voronoi) * 2.0f;
+                //      if (vrand(vn_pos, _Seed ^ 4u) < rock_to_gold_threshold) { // threshold for randomly making a rock into gold
+                //          col = tsample_gold(rock_t);
+                //      }
+                //      else if (vrand(vn_pos, _Seed ^ 22u) < rock_to_hard_threshold) {
+                //          col = tsample_denserock(rock_t);
+                //      }
+                // }
+
+                 float2 vn_cell = floor(uv * 0.1f * rock_density_mult); 
+                 float2 vn_pos = voronoiNearest(uv * 0.1f * rock_density_mult, _Seed ^ 1u);
+                 float d_voronoi = length(vn_pos - uv * 0.1f * rock_density_mult);
+
                  t = lerp(t, vrand(vn_cell, _Seed ^ mat), 0.35f);
 
-                // Calculate rock radius and modify color if inside rock
-                float r_rock = vrand(vn_cell, _Seed ^ 3u) * 0.2f;
-                float3 col;
+                 // Calculate rock radius and modify color if inside rock
+                 float r_rock = vrand(vn_cell, _Seed ^ 3u) * 0.2f * rock_density_mult * rock_size_mult;
+                 float3 col;
                  if (d_voronoi > r_rock) { col = tsample_soil(t); } // Soil
                  else { // Rock
-                      float rock_t = 1.0f - (1.0f - t) * (1.0f - t);
-                      rock_t += (r_rock - d_voronoi) * 2.0f;
-                      if (vrand(vn_pos, _Seed ^ 4u) < .1) { // threshold for randomly making a rock into gold
-                          col = tsample_gold(rock_t);
-                      }
-                      else {
-                          col = tsample_rock(rock_t);
-                      }
+                     float rock_t = 1.0f - (1.0f - t) * (1.0f - t);
+                     rock_t += (r_rock - d_voronoi) * 2.0f;
+                     if (vrand(vn_pos, _Seed ^ 4u) < rock_to_gold_threshold) { // threshold for randomly making a rock into gold
+                         col = tsample_gold(rock_t);
+                     }
+                     else {
+                         if (vrand(vn_pos, _Seed ^ 22u) < rock_to_hard_threshold) {
+                             col = tsample_denserock(rock_t);
+                         }
+                         else {
+                             col = tsample_rock(rock_t);
+                         }
+                     }
                  }
 
                  // --- Ore Vein Calculations ---                 
@@ -309,8 +348,8 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                  // Combine ore factors (adjust blending as needed)
                  // float orevein = orevein_julia * 0.1f + orevein_fossil + orevein_chunk; // Example combination
                  float orevein = 0;
-                 orevein += max(orevein_julia, 0);
-                 orevein += max(orevein_fossil, 0);
+                 // orevein += max(orevein_julia, 0);
+                 // orevein += max(orevein_fossil, 0);
                  orevein += max(orevein_chunk, 0); // Simplified combination
 
                  // Apply ore color based on threshold and density
@@ -333,33 +372,33 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                  float3 ore3 = tsample_gold(t);
                  float3 ore4 = tsample_gold(t);
 
-                ////// Ore Layer 1 (Red)
-                // float ore_sparseness = exp(uv.y * 0.0002f) * 10.0f;
-                // float ore_center = exp(uv.y * 0.001f); // Center varies with depth
-                // float ore_x = (pv - ore_center) * ore_sparseness; // How far from the center value
-                // float ore = max(pd * 0.1f, 0.0f) * exp(-ore_x * ore_x); // Gaussian falloff around center, scaled by gradient magnitude
-                // if (ore > .3f) col = ore1;
+                //// Ore Layer 1 (Red)
+                 float ore_sparseness = exp(uv.y * 0.0002f) * 10.0f;
+                 float ore_center = exp(uv.y * 0.001f); // Center varies with depth
+                 float ore_x = (pv - ore_center) * ore_sparseness; // How far from the center value
+                 float ore = max(pd * 0.1f, 0.0f) * exp(-ore_x * ore_x); // Gaussian falloff around center, scaled by gradient magnitude
+                 if (ore > .05f) col = ore1;
 
-                ////// Ore Layer 2 (Orange)
-                // ore_sparseness = exp(uv.y * 0.0002f) * 10.0f;
-                // ore_center = exp(uv.y * 0.001f) * 2.0f; // Different depth center
-                // ore_x = (pv - ore_center) * ore_sparseness;
-                // ore = max(pd * 0.1f, 0.0f) * exp(-ore_x * ore_x);
-                // if (ore > .3f) col = ore2;
+                //// Ore Layer 2 (Orange)
+                 ore_sparseness = exp(uv.y * 0.0002f) * 10.0f;
+                 ore_center = exp(uv.y * 0.001f) * 2.0f; // Different depth center
+                 ore_x = (pv - ore_center) * ore_sparseness;
+                 ore = max(pd * 0.1f, 0.0f) * exp(-ore_x * ore_x);
+                 if (ore > .05f) col = ore2;
 
-                //// // Ore Layer 3 (Cyan/Teal)
-                // ore_sparseness = exp(uv.y * 0.0002f) * 15.0f;
-                // ore_center = sin(uv.y * 0.001f) * 3.0f; // Sinusoidal center variation
-                // ore_x = (pv - ore_center) * ore_sparseness;
-                // ore = max(pd * 0.1f, 0.0f) * exp(-ore_x * ore_x);
-                // if (ore > .3f) col = ore3; // Blend cyan
+                // // Ore Layer 3 (Cyan/Teal)
+                 ore_sparseness = exp(uv.y * 0.0002f) * 15.0f;
+                 ore_center = sin(uv.y * 0.001f) * 3.0f; // Sinusoidal center variation
+                 ore_x = (pv - ore_center) * ore_sparseness;
+                 ore = max(pd * 0.1f, 0.0f) * exp(-ore_x * ore_x);
+                 if (ore > .05f) col = ore3; // Blend cyan
 
-                //// // Ore Layer 4 (Blue)
-                // ore_sparseness = exp(uv.y * 0.0002f) * 40.0f; // More sparse
-                // ore_center = vrand(floor(uv * 0.003f), _Seed ^ 3u) * 2.0f - 1.0f; // Random center using vrand
-                // ore_x = (pv - ore_center) * ore_sparseness;
-                // ore = max(pd * 0.1f, 0.0f) * exp(-ore_x * ore_x);
-                // if (ore > .3f) col = ore3; // Blend blue
+                // // Ore Layer 4 (Blue)
+                 ore_sparseness = exp(uv.y * 0.0002f) * 40.0f; // More sparse
+                 ore_center = vrand(floor(uv * 0.003f), _Seed ^ 3u) * 2.0f - 1.0f; // Random center using vrand
+                 ore_x = (pv - ore_center) * ore_sparseness;
+                 ore = max(pd * 0.1f, 0.0f) * exp(-ore_x * ore_x);
+                 if (ore > .05f) col = ore3; // Blend blue
 
 
                 //// Final output
