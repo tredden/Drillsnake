@@ -3,6 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public struct ShakeParams
+{
+    public float amplitude;
+    public float frequency;
+    public float distancePhaseOffset;
+}
+
 public class SnakeSegment : MonoBehaviour
 {
     [SerializeField]
@@ -11,6 +19,7 @@ public class SnakeSegment : MonoBehaviour
     private float backSpacing = 10f;
     
     float computedSpacing = 0f;
+    float distanceFromHead = 0f;
 
     public Queue<PositionData> positionQueue = new Queue<PositionData>();
     private GameObject? next;
@@ -19,6 +28,9 @@ public class SnakeSegment : MonoBehaviour
     private PositionData? afterTargetDistance;
 
     public SnakeController? owner;
+
+    [SerializeField]
+    public ShakeParams shakeParams;
 
     // Start is called before the first frame update
     void Start()
@@ -44,6 +56,7 @@ public class SnakeSegment : MonoBehaviour
             return;
         }
         nextSegment.computedSpacing = nextSegment.frontSpacing + backSpacing;
+        nextSegment.distanceFromHead = distanceFromHead + nextSegment.computedSpacing;
     }
 
     public void OnParentMove(float parentDistanceSinceStart)
@@ -69,6 +82,19 @@ public class SnakeSegment : MonoBehaviour
 			    transform.position = afterTargetDistance.Value.position;
                 transform.rotation = Quaternion.Euler(0, 0, afterTargetDistance.Value.rotation);
             }
+
+            if (owner?.shaking > 0.0f)
+            {
+				// Apply shake effect perpendicular to the snake's direction
+				Vector2 shakeDirection = new Vector2(
+					Mathf.Cos(transform.eulerAngles.z * Mathf.Deg2Rad),
+					Mathf.Sin(transform.eulerAngles.z * Mathf.Deg2Rad)
+				);
+				Vector2 shakeOffset = shakeDirection * Mathf.Sin(Time.time * shakeParams.frequency * (Mathf.PI * 2)
+				  + distanceFromHead * shakeParams.distancePhaseOffset * (Mathf.PI * 2)) * shakeParams.amplitude * owner.shaking;
+				transform.position += (Vector3)shakeOffset;
+            }
+
             nextSegment?.OnParentMove(targetDistance);
         }
     }
