@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1605516456915718837}
   - component: {fileID: 8451466768067923561}
   - component: {fileID: 4962545855754106877}
+  - component: {fileID: 3084964893725634751}
   m_Layer: 0
   m_Name: SnakeExplode
   m_TagString: Untagged
@@ -4830,3 +4831,15 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &3084964893725634751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 279009595507451951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3b85e925277944f9bbb0963fa31e12e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
