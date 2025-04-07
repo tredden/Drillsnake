@@ -17,6 +17,6 @@ public class ButtonPress : MonoBehaviour
     }
 
     public void OnPress() {
-        Debug.Log("I got pushed!  My name is " + gameObject.name);
+        GameController.GetInstance().ExitShop();
     }
 }
