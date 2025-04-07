@@ -91,7 +91,13 @@ public class SnakeController : MonoBehaviour
     {
         if (state == SnakeState.Dead || state == SnakeState.Exploding || state == SnakeState.Shopping) {
             speed = 0;
+            if(gameObject.GetComponent<PlayerController>()!=null){
+                snakeSegments[0].GetComponentInChildren<Animator>().SetBool("isDrilling",false);
+            }
             return;
+        }
+        if(gameObject.GetComponent<PlayerController>()!=null){
+            snakeSegments[0].GetComponentInChildren<Animator>().SetBool("isDrilling",true);
         }
         // Apply control inputs
         float turn = controlInputs.turn * turnSpeed * Time.deltaTime;
