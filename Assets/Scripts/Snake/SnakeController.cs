@@ -25,6 +25,7 @@ public enum SnakeState
     Alive,
     Exploding,
     Dead,
+    Shopping,
 }
 
 public delegate void OnGoldGained(int newGoldAmount);
@@ -85,7 +86,7 @@ public class SnakeController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (state == SnakeState.Dead || state == SnakeState.Exploding) {
+        if (state == SnakeState.Dead || state == SnakeState.Exploding || state == SnakeState.Shopping) {
             speed = 0;
             return;
         }

@@ -8,8 +8,10 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField]
     int gold = 0;
+    [SerializeField]
+    float goldDisplayMult = 0.01f;
 
-	private SnakeController snakeController;
+    private SnakeController snakeController;
     [SerializeField]
     UIController uiController;
     [SerializeField]
@@ -17,9 +19,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     float deathTime = .3f;
     bool dying;
+    bool shopping = false;
 
     bool enableSpeedControl = false;
     float maxSpeedControl = 0f;
+
+    ControlInputs controlInputs = new ControlInputs();
+
 
     void OnSnakeGoldGained(int newGoldAmount)
     {
@@ -77,6 +83,24 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void OpenShop()
+    {
+        GameController.GetInstance().OpenShop((int)(gold * this.goldDisplayMult));
+    }
+
+    void OnShopOpen()
+    {
+        shopping = true;
+        snakeController.state = SnakeState.Shopping;
+    }
+
+    void ExitShop()
+    {
+        // GameController.GetInstance().ExitShop();
+        shopping = false;
+        snakeController.state = SnakeState.Alive;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -95,6 +119,8 @@ public class PlayerController : MonoBehaviour
         // Setup Upgrade Stats and Hooks
         GameController gc = GameController.GetInstance();
         gc.onUpgradePurchased += this.OnUpgradePurchased;
+        gc.onShopEnter += this.OnShopOpen;
+        gc.onShopExit += this.ExitShop;
         foreach (UpgradeType type in Enum.GetValues(typeof(UpgradeType))) {
             this.SetStat(type, gc.GetValueForUpgradeType(type));
         }
@@ -103,7 +129,11 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        ControlInputs controlInputs = new ControlInputs();
+        if (shopping) {
+            controlInputs.turn = 0;
+            controlInputs.targetSpeed = 0;
+            snakeController.SetControlInputs(controlInputs);
+        }
 
         controlInputs.turn = Input.GetAxis("Horizontal");
         controlInputs.targetSpeed = 1 + (this.enableSpeedControl ? (Input.GetAxis("Vertical") * this.maxSpeedControl) : 0f);
@@ -112,8 +142,6 @@ public class PlayerController : MonoBehaviour
 
         if (snakeController.state == SnakeState.Dead && (Time.time - snakeController.deathTime > deathTime)) {
             ReturnToBase();
-            snakeController.Reset();
-            snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
         }
     }
 
@@ -143,5 +171,8 @@ public class PlayerController : MonoBehaviour
         snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
         this.OnSnakeDepthChanged(0f);
         dying = false;
+        snakeController.Reset();
+        snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
+        OpenShop();
     }
 }
