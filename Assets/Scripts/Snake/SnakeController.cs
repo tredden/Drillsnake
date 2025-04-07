@@ -25,6 +25,7 @@ public enum SnakeState
     Alive,
     Exploding,
     Dead,
+    Shopping,
 }
 
 public delegate void OnGoldGained(int newGoldAmount);
@@ -76,6 +77,8 @@ public class SnakeController : MonoBehaviour
     public OnDepthChanged onDepthChanged;
     public OnDeath onDeath;
 
+    public float shaking = 1f; // Segments read this to shake
+
     // Start is called before the first frame update
     void Start()
     {
@@ -85,7 +88,7 @@ public class SnakeController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (state == SnakeState.Dead || state == SnakeState.Exploding) {
+        if (state == SnakeState.Dead || state == SnakeState.Exploding || state == SnakeState.Shopping) {
             speed = 0;
             return;
         }
@@ -113,7 +116,6 @@ public class SnakeController : MonoBehaviour
         segment.OnParentMove(distanceSinceStart);
 
         // Carve the map
-        // TODO: Move this into the SnakeController?
         Vector3 drillCoord = transform.TransformPoint(
             new Vector3(drillStats.drillOffset.x, drillStats.drillOffset.y, 0f));
         MapGenerator map = MapGenerator.GetInstance();

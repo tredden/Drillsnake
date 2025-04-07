@@ -18,6 +18,8 @@ public enum UpgradeType
 }
 
 public delegate void OnUpgradePurchased(int cost, UpgradeType type, float newValue);
+public delegate void OnShopEnter();
+public delegate void OnShopExit();
 
 public class GameController : MonoBehaviour
 {
@@ -80,6 +82,8 @@ public class GameController : MonoBehaviour
     public GameObject shopItem;
 
     public OnUpgradePurchased onUpgradePurchased;
+    public OnShopEnter onShopEnter;
+    public OnShopExit onShopExit;
 
     int playerGold = 0;
 
@@ -111,13 +115,16 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q)){
-            PopulateShop();
-            shopGUI.SetActive(!shopGUI.activeSelf);
-        }
+        //if (Input.GetKeyDown(KeyCode.Q)){
+        //    PopulateShop();
+        //    shopGUI.SetActive(!shopGUI.activeSelf);
+        //}
     }
 
     void PopulateShop(){
+        Color buyGreen = new Color(0.4156863f, 0.7450981f, 0.1882353f, 1f);
+        Color buyRed = new Color(0.7450981f, 0.2853141f, 0.1882353f, 1f);
+
         Transform shopContent = shopGUI.transform.GetChild(0).GetChild(0).GetChild(0);
         foreach(Transform child in shopContent)
         {
@@ -130,15 +137,17 @@ public class GameController : MonoBehaviour
             GameObject item = Instantiate(shopItem,shopContent);
             item.transform.GetChild(0).GetComponent<TMP_Text>().text = data.GetShopName();
             int cost = data.GetNextCost();
-            item.transform.GetChild(1).GetComponent<TMP_Text>().text = "$"+cost;
+            TMP_Text costText = item.transform.GetChild(1).GetComponent<TMP_Text>();
+            bool canAfford = cost <= playerGold;
+            costText.text = "$"+cost;
+            costText.color = canAfford ? buyGreen : buyRed;
             if (data.GetIsFullyOwned()){
                 item.transform.GetChild(2).GetComponent<Button>().enabled = false;
                 item.transform.GetChild(2).GetChild(0).GetComponent<TMP_Text>().text = "SOLD";
             } else {
                 Button b = item.transform.GetChild(2).GetComponent<Button>();
-                b.enabled = cost <= playerGold;
-                b.onClick.RemoveAllListeners();
-                b.onClick.AddListener(delegate() { this.BuyUpgrade(data.type); }); 
+                b.interactable = canAfford;
+                b.onClick.AddListener(() => { GameController.GetInstance().BuyUpgrade(data.type); }); 
                 item.transform.GetChild(2).GetChild(0).GetComponent<TMP_Text>().text = "BUY";
             }
         }
@@ -149,15 +158,18 @@ public class GameController : MonoBehaviour
         playerGold = goldAmount;
         PopulateShop();
         shopGUI.SetActive(true);
+        onShopEnter.Invoke();
     }
 
     public void ExitShop()
     {
         shopGUI.SetActive(false);
+        onShopExit.Invoke();
     }
 
-    void BuyUpgrade(UpgradeType upgradeType)
+    public void BuyUpgrade(UpgradeType upgradeType)
     {
+        Debug.Log("Attempt Buy Upgrade: " + upgradeType.ToString());
         UpgradeData data = GetDataForUpgradeType(upgradeType);
         int cost = data.GetNextCost();
         data.owned++;
