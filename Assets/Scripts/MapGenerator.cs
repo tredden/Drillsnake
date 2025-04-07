@@ -5,17 +5,21 @@ using UnityEngine;
 public struct CarveResults
 {
     public bool didCarve;
+    public float totalCarved;
     public float maxThickness;
     public float averageThickness;
     public float totalGold;
     public float totalHazard;
     public float totalThickness;
+    public float averageNonzeroThickness;
 
     public CarveResults(float startingThickness = 0f, float startingGold = 0f, float startingHazard = 0f)
     {
         didCarve = false;
+        totalCarved = 0f;
         maxThickness = startingThickness;
         averageThickness = startingThickness;
+        averageNonzeroThickness = startingThickness;
         totalGold = startingGold;
         totalHazard = startingHazard;
         totalThickness = startingThickness;
@@ -90,6 +94,7 @@ public class MapGenerator : MonoBehaviour
         } 
         if (seed == 0) {
             GenerateSeed();
+            TextureReader.GetInstance().seed = this.seed;
         }
         AllocateTextures();
         // GenerateSpriteCells();
@@ -386,6 +391,7 @@ public class MapGenerator : MonoBehaviour
         CarveResults output = new CarveResults();
         List<Texture2D> updatedTextures = new List<Texture2D>();
         int totalCells = 0;
+        int totalNonzeroCells = 0;
         Vector2 point = Vector2.zero;
         int xMin = Mathf.FloorToInt(collider.bounds.min.x);
         int xMax = Mathf.CeilToInt(collider.bounds.max.x);
@@ -421,8 +427,12 @@ public class MapGenerator : MonoBehaviour
                 }
                 Color c = texC.GetPixel(xr, yr);
                 totalCells++;
-                if (c.b != 0 || c.g != 0) {
+                if (c.b > 0) {
+                    totalNonzeroCells++;
+                }
+                if (c.b != 0 || c.g != 0 && c.b <= drillStrength) {
                     output.didCarve = true;
+                    output.totalCarved += 1f;
                     output.maxThickness = Mathf.Max(output.maxThickness, c.b);
                     output.totalThickness += c.b;
                     output.totalGold += c.g;
@@ -437,7 +447,12 @@ public class MapGenerator : MonoBehaviour
                 }
             } // end for y
         } // end for x
-        output.averageThickness = output.totalThickness / (float) totalCells;
+        output.averageThickness = 0f;
+        output.averageNonzeroThickness = 0f;
+        if (totalCells > 0) {
+			output.averageThickness = output.totalThickness / (float) totalCells;
+			output.averageNonzeroThickness = output.totalThickness / (float) totalNonzeroCells;
+        }
         foreach (Texture2D tex in updatedTextures) {
             tex.Apply(false, false);
         }

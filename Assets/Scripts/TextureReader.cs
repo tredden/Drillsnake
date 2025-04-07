@@ -48,6 +48,8 @@ public class TextureReader : MonoBehaviour
 
     List<TerrainChunkQueueItem> chunkQueue = new List<TerrainChunkQueueItem>();
 
+    public uint seed;
+
     static TextureReader instance;
 
     public static TextureReader GetInstance()
@@ -102,6 +104,7 @@ public class TextureReader : MonoBehaviour
         terrainMaterial.SetFloat("_PixelFactor", pixelFactor);
         terrainMaterial.SetVector("_ViewRect", new Vector4(x, y, chunkScale, chunkScale));
         terrainMaterial.SetFloat("_Zoom", 1f);
+        terrainMaterial.SetInt("_Seed", (int)seed);
 
         // --- Render the Terrain chunk into the RenderTexture ---
         // Graphics.Blit copies a source texture to a destination using a shader.

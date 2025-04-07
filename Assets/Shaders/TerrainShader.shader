@@ -25,6 +25,7 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
             float _PixelFactor;
             float4 _ViewRect; // Using xy for panning
             float _Zoom;
+            int _Seed;
 
             // Structure to pass data from vertex to fragment shader
             struct v2f
@@ -85,8 +86,8 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
             }
              float density(float2 p) {
                  float2 rocks_cell = floor(p * 0.1f); float2 rocks_pos = voronoiNearest(p * 0.1f, 1u);
-                 float d = length(rocks_pos - p * 0.1f); float r = vrand(rocks_cell, 3u) * 0.2f;
-                 float noise_detail = valnoise(p * 0.1f, 5u) * 7.0f; float noise_broad = valnoise(p * 0.01f, 6u) * 30.0f;
+                 float d = length(rocks_pos - p * 0.1f); float r = vrand(rocks_cell, _Seed ^ 3u) * 0.2f;
+                 float noise_detail = valnoise(p * 0.1f, _Seed ^ 5u) * 7.0f; float noise_broad = valnoise(p * 0.01f, _Seed ^ 6u) * 30.0f;
                  return p.y + (d < r ? (r - d) * 5.0f : 0.0f) + noise_detail + noise_broad;
             }
             float2 cmult(float2 a, float2 b) { return float2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x); }
@@ -156,7 +157,7 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 }
 
                 // Base terrain noise
-                float t = vrand(uv, 0u);
+                float t = vrand(uv, _Seed ^ 0u);
 
                 // Top grass/soil layer
                  if (dens < 3.0f) {
@@ -170,17 +171,17 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                  // Voronoi noise influence
                  float2 vn_cell = floor(uv * 0.1f); float2 vn_pos = voronoiNearest(uv * 0.1f, 1u);
                  float d_voronoi = length(vn_pos - uv * 0.1f);
-                 t = lerp(t, vrand(vn_cell, mat), 0.35f);
+                 t = lerp(t, vrand(vn_cell, _Seed ^ mat), 0.35f);
 
                  // TODO: this is the rock to gold chance
-                 if (vrand(vn_pos, 4u) < .1) {
+                 if (vrand(vn_pos, _Seed ^ 4u) < .1) {
                      drock = darkgold;
                      mrock = mediumgold;
                      lrock = lightgold;
                  }
 
                 // Calculate rock radius and modify color if inside rock
-                float r_rock = vrand(vn_cell, 3u) * 0.2f;
+                float r_rock = vrand(vn_cell, _Seed ^ 3u) * 0.2f;
                 float3 col;
                  if (d_voronoi > r_rock) { col = qbez(dsoil, msoil, lsoil, t); } // Soil
                  else { // Rock
@@ -192,15 +193,15 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 // --- Ore Vein Calculation (Identical logic to previous version) ---
                 float3 gold = qbez(darkgold, mediumgold, lightgold, t);
                 float2 c0 = float2(-0.1009521484375f + sin(_Time.y) * 0.01f, -0.9563293457031254f + cos(_Time.y) * 0.01f);
-                float2 noise_offset = (vrand22(uv * 0.005f, 10u) * 2.0f - 1.0f + (vrand22(uv * 0.02f, 12u) * 1.0f - 0.5f)) * 0.1f;
+                float2 noise_offset = (vrand22(uv * 0.005f, _Seed ^ 10u) * 2.0f - 1.0f + (vrand22(uv * 0.02f, _Seed ^ 12u) * 1.0f - 0.5f)) * 0.1f;
                 float2 c = c0 + noise_offset; float2 z = c;
                  [unroll] for(int k=0; k<13; ++k) { z = cmult(z, z) + c; }
                 float orevein_fossils = ter_fossils(uv * 0.02f);
                 float orevein = orevein_fossils;
-                orevein *= vrand(uv * 0.05f, 9u); orevein *= vrand(uv * 0.5f, 8u);
+                orevein *= vrand(uv * 0.05f, _Seed ^ 9u); orevein *= vrand(uv * 0.5f, _Seed ^ 8u);
                 float2 oreuv_distorted = (uv + sin(uv) + 3.2360679775f * sin(uv * 0.25f));
-                float2 orechunk_cell = floor(oreuv_distorted * 0.02f); float2 orechunk_pos = voronoiNearest(oreuv_distorted * 0.02f, 16u);
-                float chunksize_base = vrand(orechunk_cell, 17u);
+                float2 orechunk_cell = floor(oreuv_distorted * 0.02f); float2 orechunk_pos = voronoiNearest(oreuv_distorted * 0.02f, _Seed ^ 16u);
+                float chunksize_base = vrand(orechunk_cell, _Seed ^ 17u);
                 chunksize_base *= chunksize_base; chunksize_base *= chunksize_base;
                 chunksize_base = (chunksize_base - 0.5f) * 200.0f * max(0.0f, 1.0f - 100.0f / dens);
                  if (chunksize_base > 0.0f) {
@@ -212,7 +213,7 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 float ore_threshold_gold = 100.0f / max(1.0f, dens);
                 float ore_threshold_stone = 10.0f / max(1.0f, dens);
                 if (orevein > ore_threshold_gold) { col = gold; }
-                else if (orevein * vrand(uv * 0.001f, 32u) > ore_threshold_stone) { col = qbez(drock, mrock, lrock, t); }
+                else if (orevein * vrand(uv * 0.001f, _Seed ^ 32u) > ore_threshold_stone) { col = qbez(drock, mrock, lrock, t); }
 
                 // Final Output
                 return fixed4(col, 1.0);
