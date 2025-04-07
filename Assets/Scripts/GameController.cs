@@ -60,6 +60,9 @@ public class GameController : MonoBehaviour
         }
         public int GetNextCost()
         {
+            if (entries.Count == 0) {
+                return 0;
+            }
             if (GetIsFullyOwned()) {
                 return entries[owned - 1].price;
             } else {
@@ -68,7 +71,7 @@ public class GameController : MonoBehaviour
         }
         public float GetCurrentValue()
         {
-            if (owned == 0) {
+            if (entries.Count == 0 || owned == 0) {
                 return startingValue;
             }
             return entries[owned - 1].value;
@@ -124,6 +127,16 @@ public class GameController : MonoBehaviour
     Color buyGreen = new Color(0.4156863f, 0.7450981f, 0.1882353f, 1f);
     Color buyRed = new Color(0.7450981f, 0.2853141f, 0.1882353f, 1f);
     void PopulateShop(){
+        upgradeList.Sort((UpgradeData a, UpgradeData b) => {
+            if (a.GetIsFullyOwned() != b.GetIsFullyOwned()) {
+                return a.GetIsFullyOwned() ? 1 : -1;
+            }
+            int dcost = a.GetNextCost() - b.GetNextCost();
+            if (dcost != 0) {
+                return dcost;
+            }
+            return a.GetShopName().CompareTo(b.GetShopName());
+        });
         Transform shopContent = shopGUI.transform.GetChild(0).GetChild(0).GetChild(0);
         foreach(Transform child in shopContent)
         {

@@ -196,9 +196,9 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 return qbez(dgold, mgold, lgold, t);
             }
             float3 tsample_soil(float t) {
-                float3 dsoil = float3(0, 0, .25f);
-                float3 msoil = float3(0, 0, .2f);
-                float3 lsoil = float3(0, 0, .15f);
+                float3 dsoil = float3(0, 0, .15);
+                float3 msoil = float3(0, 0, .1f);
+                float3 lsoil = float3(0, 0, .05f);
                 return qbez(dsoil, msoil, lsoil, t);
             }
             float3 tsample_rock(float t) {
