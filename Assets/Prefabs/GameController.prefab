@@ -49,21 +49,45 @@ MonoBehaviour:
   - name: Fuel Amount
     description: 
     type: 0
-    entries: []
-    startingValue: 0
+    entries:
+    - price: 100
+      value: 20
+    - price: 200
+      value: 40
+    - price: 500
+      value: 80
+    - price: 1000
+      value: 160
+    - price: 4000
+      value: 640
+    - price: 100000
+      value: 100000
+    startingValue: 10
     owned: 0
     hidden: 0
   - name: Drill Strength
     description: 
     type: 1
-    entries: []
-    startingValue: 0.45
+    entries:
+    - price: 200
+      value: 0.45
+    - price: 5000
+      value: 0.6
+    - price: 20000
+      value: 0.8
+    startingValue: 0.3
     owned: 0
     hidden: 0
   - name: Move Speed
     description: 
     type: 2
-    entries: []
+    entries:
+    - price: 450
+      value: 160
+    - price: 1750
+      value: 192
+    - price: 7000
+      value: 256
     startingValue: 128
     owned: 0
     hidden: 0
@@ -72,8 +96,10 @@ MonoBehaviour:
     type: 3
     entries:
     - price: 10
+      value: 90
+    - price: 50
       value: 180
-    startingValue: 60
+    startingValue: 45
     owned: 0
     hidden: 0
   - name: Salvage Amonut
@@ -84,7 +110,7 @@ MonoBehaviour:
       value: 0.3
     - price: 350
       value: 0.5
-    - price: 800
+    - price: 6500
       value: 0.7
     startingValue: 0.2
     owned: 0
@@ -98,11 +124,17 @@ MonoBehaviour:
     startingValue: 0
     owned: 0
     hidden: 0
-  - name: Heat Capacity
+  - name: Durability
     description: 
     type: 6
-    entries: []
-    startingValue: 5
+    entries:
+    - price: 300
+      value: 3
+    - price: 2250
+      value: 4
+    - price: 8700
+      value: 6
+    startingValue: 2
     owned: 0
     hidden: 0
   - name: Max Speed
@@ -113,7 +145,7 @@ MonoBehaviour:
       value: 0.8
     startingValue: 0.4
     owned: 0
-    hidden: 0
+    hidden: 1
   - name: Alchemy
     description: 
     type: 8
@@ -139,5 +171,6 @@ MonoBehaviour:
   unbankedGoldText: {fileID: 0}
   lostGoldText: {fileID: 0}
   depthText: {fileID: 0}
+  fuelGuage: {fileID: 0}
   depthMult: 0.1
   goldMult: 0.01
