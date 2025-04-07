@@ -24,6 +24,7 @@ public struct DrillStats
 [System.Serializable]
 public enum SnakeState
 {
+    Spawning,
     Alive,
     Exploding,
     Dead,
@@ -60,7 +61,16 @@ public class SnakeController : MonoBehaviour
     Collider2D drillCollider;
     private ControlInputs controlInputs;
     public float speed = 0f;
-    public SnakeState state = SnakeState.Alive;
+    private SnakeState _state = SnakeState.Spawning;
+    public SnakeState state
+    {
+        get => _state;
+        set
+        {
+            Debug.Log($"State changed from {_state} to {value}");
+            _state = value;
+        }
+    }
     public float deathTime = 0f;
 
     // The distance traveled since the snake started
@@ -92,13 +102,19 @@ public class SnakeController : MonoBehaviour
     void Start()
     {
 		SetLength(segments);
-        Reset();
+    }
+
+    public void SetGold(float value)
+    {
+        gold = value;
+        onGoldGained.Invoke((int)gold);
+        SetLength(Mathf.Max(segments, (int)(gold / 100f) + 5));
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (state == SnakeState.Dead || state == SnakeState.Exploding || state == SnakeState.Shopping) {
+        if (state == SnakeState.Spawning || state == SnakeState.Dead || state == SnakeState.Exploding || state == SnakeState.Shopping) {
             speed = 0;
             if(gameObject.GetComponent<PlayerController>()!=null){
                 AudioController.GetInstance().SetDigSound(0);
@@ -145,10 +161,7 @@ public class SnakeController : MonoBehaviour
             // Elongate from gold
             float addedGold = results.totalGold * goldMult;
             if (addedGold > 0) {
-                gold += addedGold;
-                this.SetLength(Mathf.Max(segments, (int)(gold / 100f) + 3));
-                // broadcast change for player controller or UI
-                onGoldGained.Invoke((int)gold);
+                SetGold(gold + addedGold);
             }
 
             // Thoughts on drilling
@@ -284,8 +297,6 @@ public class SnakeController : MonoBehaviour
     }
 
     public void Reset() {
-        // Reset the snake to its initial state
-        state = SnakeState.Alive;
         distanceSinceStart = 0f;
         speed = 0f;
         currentHeat = 0f;

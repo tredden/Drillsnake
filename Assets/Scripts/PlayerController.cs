@@ -24,6 +24,9 @@ public class PlayerController : MonoBehaviour
 
     ControlInputs controlInputs = new ControlInputs();
 
+    [SerializeField]
+    private float depositPeriod = 0.1f;
+    private float lastDepositTime = 0;
 
     void OnSnakeGoldGained(int newGoldAmount)
     {
@@ -34,6 +37,20 @@ public class PlayerController : MonoBehaviour
     {
         float depth = MapGenerator.GetInstance().GetTargetSpawnPos().y - newDepth;
         uiController.SetDepth(depth);
+
+        if (depth <= 0f)
+        {
+            if (Time.time - lastDepositTime > depositPeriod)
+            {
+                lastDepositTime = Time.time;
+                if (snakeController.gold >= 100f) {
+                    Debug.Log("Depositing. snake: " + (int)snakeController.gold + " gold: " + (int)gold);
+                    snakeController.SetGold(snakeController.gold - 100f);
+                    gold += 100;
+                    uiController.SetGold((int)gold, (int)snakeController.gold, 0);
+                }
+            }
+        }
     }
     void OnSnakeSegmentExploded(int totalSegments, int segmentsLeft, float goldPending)
     {
@@ -121,8 +138,11 @@ public class PlayerController : MonoBehaviour
         snakeController.onDepthChanged += this.OnSnakeDepthChanged;
         snakeController.onSegmentExploded += this.OnSnakeSegmentExploded;
         snakeController.onDeath += this.OnSnakeDeath;
-        snakeController.Reset();
         snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
+        snakeController.Reset();
+
+        // Start the snake after one second.
+        StartCoroutine(StartSnake(1f));
 
         // Setup Upgrade Stats and Hooks
         GameController gc = GameController.GetInstance();
@@ -132,6 +152,12 @@ public class PlayerController : MonoBehaviour
         foreach (UpgradeType type in Enum.GetValues(typeof(UpgradeType))) {
             this.SetStat(type, gc.GetValueForUpgradeType(type));
         }
+    }
+
+    private IEnumerator StartSnake(float delay = 1f)
+    {
+        yield return new WaitForSeconds(delay);
+        snakeController.state = SnakeState.Alive;
     }
 
     // Update is called once per frame
@@ -151,6 +177,7 @@ public class PlayerController : MonoBehaviour
         if (snakeController.state == SnakeState.Dead && (Time.time - snakeController.deathTime > deathTime)) {
             ReturnToBase();
         }
+
     }
 
     void DepositGold(int amt, int lost, float time)
@@ -165,6 +192,7 @@ public class PlayerController : MonoBehaviour
         int goldGain = Mathf.RoundToInt(snakeController.gold * goldFactor);
         int goldLost = (int) snakeController.gold - goldGain;
         DepositGold(goldGain, goldLost, deathTime);
+        snakeController.SetGold(snakeController.gold % 1f);
     }
 
     void ReturnToBase() {
@@ -172,7 +200,6 @@ public class PlayerController : MonoBehaviour
             TriggerGoldReturn();
         }
         // let us keep partially accumulated gold
-        snakeController.gold = snakeController.gold % 1f;
         this.OnSnakeGoldGained(0);
         snakeController.state = SnakeState.Alive;
         snakeController.speed = 0f;
@@ -181,7 +208,6 @@ public class PlayerController : MonoBehaviour
         this.OnSnakeDepthChanged(0f);
         dying = false;
         snakeController.Reset();
-        snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
         OpenShop();
     }
 }

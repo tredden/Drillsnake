@@ -41,6 +41,15 @@ public class TextureReader : MonoBehaviour
     public int pixelFactor = 8;
     public int zoom = 1;
 
+    [SerializeField]
+    float oreThreshold1 = 100f;
+    [SerializeField]
+    float oreThreshold2 = 50f;
+    [SerializeField]
+    float oreThreshold3 = 20f;
+    [SerializeField]
+    float oreThreshold4 = 10f;
+
     int activeX = 0;
     int activeY = 0;
     int activeChunkScale = 512;
@@ -103,7 +112,7 @@ public class TextureReader : MonoBehaviour
         // Update shader properties from script variables (optional)
         terrainMaterial.SetFloat("_PixelFactor", pixelFactor);
         terrainMaterial.SetVector("_ViewRect", new Vector4(x, y, chunkScale, chunkScale));
-        terrainMaterial.SetFloat("_Zoom", 1f);
+        terrainMaterial.SetVector("_OreThreshold", new Vector4(oreThreshold1, oreThreshold2, oreThreshold3, oreThreshold4));
         terrainMaterial.SetInt("_Seed", (int)seed);
 
         // --- Render the Terrain chunk into the RenderTexture ---
