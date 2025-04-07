@@ -121,8 +121,11 @@ public class PlayerController : MonoBehaviour
         snakeController.onDepthChanged += this.OnSnakeDepthChanged;
         snakeController.onSegmentExploded += this.OnSnakeSegmentExploded;
         snakeController.onDeath += this.OnSnakeDeath;
-        snakeController.Reset();
         snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
+        snakeController.Reset();
+
+        // Start the snake after one second.
+        StartCoroutine(StartSnake(1f));
 
         // Setup Upgrade Stats and Hooks
         GameController gc = GameController.GetInstance();
@@ -132,6 +135,12 @@ public class PlayerController : MonoBehaviour
         foreach (UpgradeType type in Enum.GetValues(typeof(UpgradeType))) {
             this.SetStat(type, gc.GetValueForUpgradeType(type));
         }
+    }
+
+    private IEnumerator StartSnake(float delay = 1f)
+    {
+        yield return new WaitForSeconds(delay);
+        snakeController.state = SnakeState.Alive;
     }
 
     // Update is called once per frame
@@ -181,7 +190,6 @@ public class PlayerController : MonoBehaviour
         this.OnSnakeDepthChanged(0f);
         dying = false;
         snakeController.Reset();
-        snakeController.transform.position = MapGenerator.GetInstance().GetTargetSpawnPos();
         OpenShop();
     }
 }
