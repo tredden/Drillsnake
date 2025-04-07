@@ -22,6 +22,8 @@ public class PlayerController : MonoBehaviour
     bool enableSpeedControl = false;
     float maxSpeedControl = 0f;
 
+    bool hasShownSalvageText = false;
+
     ControlInputs controlInputs = new ControlInputs();
 
     [SerializeField]
@@ -54,6 +56,7 @@ public class PlayerController : MonoBehaviour
                 //    gold += 100;
                 //    uiController.SetGold((int)gold, (int)snakeController.gold, 0);
                 //}
+                GameController.GetInstance().SetDescText("There's gold down there!!!\nWhat are you waiting for???");
                 ReturnToBase();
             }
         }
@@ -69,6 +72,10 @@ public class PlayerController : MonoBehaviour
     void OnSnakeDeath()
     {
         dying = true;
+        if (!hasShownSalvageText) {
+            GameController.GetInstance().SetDescText("Make sure you bring your gold back to the surface if you want to avoid paying the salvage cost!!!");
+            hasShownSalvageText = true;
+        }
         TriggerGoldReturn();
     }
 

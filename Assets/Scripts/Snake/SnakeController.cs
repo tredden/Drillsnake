@@ -196,17 +196,20 @@ public class SnakeController : MonoBehaviour
 
             if (currentHeat >= drillStats.maxDrillHeat) {
                 StartExplode();
+                GameController.GetInstance().SetDescText("If your drill isn't strong enough to break something, it might heat up and explode!");
                 return;
             }
 
             currentFuel -= (currentHeat + minFuelBurnRate) * Time.deltaTime;
             if (currentFuel <= 0f) {
                 StartExplode();
+                GameController.GetInstance().SetDescText("Make sure to keep an eye on your fuel levels!");
                 return;
             }
 
             if (results.hitEdge) {
                 StartExplode();
+                GameController.GetInstance().SetDescText("UH OH!  The Edge of the map is a deadly place!");
                 return;
             }
         }

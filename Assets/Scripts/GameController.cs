@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
 public enum UpgradeType
 {
@@ -30,15 +31,17 @@ public class GameController : MonoBehaviour
         {
             public int price;
             public float value;
-            public Entry(int _price, float _value)
+            public string description;
+            public Entry(int _price, float _value, string _description)
             {
                 price = _price;
                 value = _value;
+                description = _description;
             }
         }
         
         public string name;
-        public string description;
+        public string fullPurchaseDescription;
         public UpgradeType type;
         public List<Entry> entries;
         public float startingValue;
@@ -54,9 +57,17 @@ public class GameController : MonoBehaviour
                 return name + (entries.Count > 1 ? (" " + romanNum[owned + 1]) : romanNum[0]);
             }
         }
+        public string GetDescription()
+        {
+            if (GetIsFullyOwned()) {
+                return fullPurchaseDescription;
+            } else {
+                return entries[owned].description;
+            }
+        }
         public bool GetIsFullyOwned()
         {
-            return owned == entries.Count;
+            return owned >= entries.Count;
         }
         public int GetNextCost()
         {
@@ -79,7 +90,9 @@ public class GameController : MonoBehaviour
     }
     [SerializeField]
     public List<UpgradeData> upgradeList =  new();
-    
+    [SerializeField]
+    TextMeshProUGUI descText;
+
     static GameController instance;
     public GameObject shopGUI;
     public GameObject shopItem;
@@ -87,6 +100,8 @@ public class GameController : MonoBehaviour
     public OnUpgradePurchased onUpgradePurchased;
     public OnShopEnter onShopEnter;
     public OnShopExit onShopExit;
+
+    bool isShowingShop = false;
 
     int playerGold = 0;
 
@@ -122,6 +137,41 @@ public class GameController : MonoBehaviour
         //    PopulateShop();
         //    shopGUI.SetActive(!shopGUI.activeSelf);
         //}
+        if (isShowingShop) {
+            PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
+            pointerEventData.position = Input.mousePosition;
+
+            List<RaycastResult> raycastResultList = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerEventData, raycastResultList);
+            foreach (RaycastResult r in raycastResultList) {
+                TooltipTarget tt = r.gameObject.GetComponent<TooltipTarget>();
+                if (tt != null) {
+                    descText.text = tt.text;
+                    break;
+                }
+            }
+        }
+        
+    }
+
+    void MarkItemHover(UpgradeData data)
+    {
+        Debug.Log("Mark hover: " + data.GetShopName());
+        descText.text = data.GetDescription();
+    }
+
+    void MarkItemNoHover(UpgradeData data)
+    {
+        Debug.Log("Mark end hover: " + data.GetShopName());
+        //if (activeHover == data) {
+        //    tooltip.Hide();
+        //    activeHover = null;
+        //}
+    }
+
+    public void SetDescText(string text)
+    {
+        descText.text = text;
     }
 
     Color buyGreen = new Color(0.4156863f, 0.7450981f, 0.1882353f, 1f);
@@ -147,12 +197,29 @@ public class GameController : MonoBehaviour
                 continue; 
             }
             GameObject item = Instantiate(shopItem,shopContent);
+
+            //EventTrigger et = item.GetComponent<EventTrigger>();
+            //EventTrigger.Entry onMouseOver = new EventTrigger.Entry();
+            //onMouseOver.eventID = EventTriggerType.PointerEnter;
+            //onMouseOver.callback.AddListener((BaseEventData _) => { MarkItemHover(data); });
+            //et.triggers.Add(onMouseOver);
+            //onMouseOver.eventID = EventTriggerType.Select;
+            //onMouseOver.callback.AddListener((BaseEventData _) => { MarkItemHover(data); });
+            //et.triggers.Add(onMouseOver);
+            //EventTrigger.Entry onMouseExit = new EventTrigger.Entry();
+            //onMouseOver.eventID = EventTriggerType.PointerExit;
+            //onMouseOver.callback.AddListener((BaseEventData _) => { MarkItemNoHover(data); });
+            //et.triggers.Add(onMouseExit);
+            item.GetComponent<TooltipTarget>().text = data.GetDescription();
+
             item.transform.GetChild(0).GetComponent<TMP_Text>().text = data.GetShopName();
             int cost = data.GetNextCost();
             TMP_Text costText = item.transform.GetChild(1).GetComponent<TMP_Text>();
             bool canAfford = cost <= playerGold;
             costText.text = "$"+cost;
             costText.color = canAfford ? buyGreen : buyRed;
+            // TODO: set tooltip to description (even if purchased, for vanity text)
+            string description = data.GetDescription();
             if (data.GetIsFullyOwned()){
                 item.transform.GetChild(2).GetComponent<Button>().enabled = false;
                 costText.alpha = 0f;
@@ -170,6 +237,7 @@ public class GameController : MonoBehaviour
     {
         playerGold = goldAmount;
         PopulateShop();
+        isShowingShop = true;
         shopGUI.SetActive(true);
         onShopEnter.Invoke();
     }
@@ -177,6 +245,7 @@ public class GameController : MonoBehaviour
     public void ExitShop()
     {
         shopGUI.SetActive(false);
+        isShowingShop = false;
         onShopExit.Invoke();
     }
 

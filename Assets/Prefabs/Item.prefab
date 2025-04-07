@@ -283,6 +283,8 @@ GameObject:
   - component: {fileID: 7280226655689948085}
   - component: {fileID: 241083891616652816}
   - component: {fileID: 699289951131796753}
+  - component: {fileID: 3806251009011607574}
+  - component: {fileID: 8600203269383356150}
   m_Layer: 5
   m_Name: Item
   m_TagString: Untagged
@@ -390,6 +392,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
   m_VerticalFit: 2
+--- !u!114 &3806251009011607574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1978502541830044389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates: []
+--- !u!114 &8600203269383356150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1978502541830044389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68fb20a557388ac4e939955e7875a67d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  text: TIPPY MC TOOLTIP
 --- !u!1 &3147449590582371905
 GameObject:
   m_ObjectHideFlags: 0
@@ -425,7 +453,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 84.71885, y: -21.71997}
+  m_AnchoredPosition: {x: 84.71885, y: -21.720001}
   m_SizeDelta: {x: 162.22, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4163669500728579151

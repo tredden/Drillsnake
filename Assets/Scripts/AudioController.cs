@@ -55,7 +55,6 @@ public class AudioController : MonoBehaviour
     }
 
     public void SetDigSound(float digspeed){
-        Debug.Log(digspeed);
         if(digspeed<=0){
             isDigging=false;
             digsource.Stop();
