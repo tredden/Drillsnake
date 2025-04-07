@@ -23,6 +23,7 @@ public struct DrillStats
 [System.Serializable]
 public enum SnakeState
 {
+    Spawning,
     Alive,
     Exploding,
     Dead,
@@ -50,9 +51,6 @@ public class SnakeController : MonoBehaviour
     public float turnSpeed = 180f;
     
     [SerializeField]
-    private float maxExplodeTime = 2f;
-    
-    [SerializeField]
     private GameObject headPrefab;
     [SerializeField]
     private GameObject bodyPrefab;
@@ -62,7 +60,16 @@ public class SnakeController : MonoBehaviour
     Collider2D drillCollider;
     private ControlInputs controlInputs;
     public float speed = 0f;
-    public SnakeState state = SnakeState.Alive;
+    private SnakeState _state = SnakeState.Spawning;
+    public SnakeState state
+    {
+        get => _state;
+        set
+        {
+            Debug.Log($"State changed from {_state} to {value}");
+            _state = value;
+        }
+    }
     public float deathTime = 0f;
 
     // The distance traveled since the snake started
@@ -94,15 +101,20 @@ public class SnakeController : MonoBehaviour
     void Start()
     {
 		SetLength(segments);
-        Reset();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (state == SnakeState.Dead || state == SnakeState.Exploding || state == SnakeState.Shopping) {
+        if (state == SnakeState.Spawning || state == SnakeState.Dead || state == SnakeState.Exploding || state == SnakeState.Shopping) {
             speed = 0;
+            if(gameObject.GetComponent<PlayerController>()!=null){
+                snakeSegments[0].GetComponentInChildren<Animator>().SetBool("isDrilling",false);
+            }
             return;
+        }
+        if(gameObject.GetComponent<PlayerController>()!=null){
+            snakeSegments[0].GetComponentInChildren<Animator>().SetBool("isDrilling",true);
         }
         // Apply control inputs
         float turn = controlInputs.turn * turnSpeed * Time.deltaTime;
@@ -262,7 +274,6 @@ public class SnakeController : MonoBehaviour
         for (int i = 0; i < totalSegments; i++)
         {
             delay = 1f/(i+1);
-            Debug.Log(delay);
             yield return new WaitForSeconds(delay);
             Instantiate(explosionPrefab,snakeSegments[i].transform.position,Quaternion.identity);
             snakeSegments[i].SetActive(false);
@@ -277,8 +288,6 @@ public class SnakeController : MonoBehaviour
     }
 
     public void Reset() {
-        // Reset the snake to its initial state
-        state = SnakeState.Alive;
         distanceSinceStart = 0f;
         speed = 0f;
         currentHeat = 0f;
