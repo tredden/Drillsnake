@@ -103,6 +103,13 @@ public class SnakeController : MonoBehaviour
 		SetLength(segments);
     }
 
+    public void SetGold(float value)
+    {
+        gold = value;
+        onGoldGained.Invoke((int)gold);
+        SetLength(Mathf.Max(segments, (int)(gold / 100f) + 3));
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -151,10 +158,7 @@ public class SnakeController : MonoBehaviour
             // Elongate from gold
             float addedGold = results.totalGold * goldMult;
             if (addedGold > 0) {
-                gold += addedGold;
-                this.SetLength(Mathf.Max(segments, (int)(gold / 100f) + 3));
-                // broadcast change for player controller or UI
-                onGoldGained.Invoke((int)gold);
+                SetGold(gold + addedGold);
             }
 
             // Thoughts on drilling

@@ -34,6 +34,10 @@ public class PlayerController : MonoBehaviour
     {
         float depth = MapGenerator.GetInstance().GetTargetSpawnPos().y - newDepth;
         uiController.SetDepth(depth);
+        if (depth <= 0f)
+        {
+            TriggerGoldReturn();
+        }
     }
     void OnSnakeSegmentExploded(int totalSegments, int segmentsLeft, float goldPending)
     {
@@ -160,12 +164,14 @@ public class PlayerController : MonoBehaviour
         if (snakeController.state == SnakeState.Dead && (Time.time - snakeController.deathTime > deathTime)) {
             ReturnToBase();
         }
+
     }
 
     void DepositGold(int amt, int lost, float time)
     {
         uiController.TriggerGoldDeposit((int)gold, amt, lost, time);
         gold += (int)amt;
+        snakeController.SetGold(snakeController.gold % 1f);
     }
 
     void TriggerGoldReturn()
@@ -181,7 +187,6 @@ public class PlayerController : MonoBehaviour
             TriggerGoldReturn();
         }
         // let us keep partially accumulated gold
-        snakeController.gold = snakeController.gold % 1f;
         this.OnSnakeGoldGained(0);
         snakeController.state = SnakeState.Alive;
         snakeController.speed = 0f;
