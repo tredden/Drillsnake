@@ -2940,8 +2940,124 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 6150030125558446927}
     - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[0].startingValue
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[8].entries.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[0].fullPurchaseDescription
+      value: Save some fuel for the rest of us!!!
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[1].fullPurchaseDescription
+      value: Almost strong enough to cut diamond!
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[2].fullPurchaseDescription
+      value: VROOOOOOOM!!!
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
       propertyPath: upgradeList.Array.data[3].fullPurchaseDescription
-      value: You are the master of turning
+      value: Any faster and I'd get dizzy!
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[4].fullPurchaseDescription
+      value: You're going to put my towing company out of business!
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[5].fullPurchaseDescription
+      value: Don't forget to try using ALL of the arrow keys!
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[6].fullPurchaseDescription
+      value: I thought you said that thing was a precision instrument!!!
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[7].fullPurchaseDescription
+      value: The finesse...
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[8].fullPurchaseDescription
+      value: Wait... did those rocks turn into gold????
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[0].entries.Array.data[0].price
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[0].entries.Array.data[0].value
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[0].entries.Array.data[1].price
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[0].entries.Array.data[1].value
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[4].entries.Array.data[2].value
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[8].entries.Array.data[0].price
+      value: 10000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[8].entries.Array.data[0].value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[0].entries.Array.data[0].description
+      value: Boost to fuel capacity
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[0].entries.Array.data[1].description
+      value: Boost to fuel capacity
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[0].entries.Array.data[2].description
+      value: '*BIG* boost to fuel capacity'
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[0].entries.Array.data[3].description
+      value: '*BIGGER* boost to fuel capacity'
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[0].entries.Array.data[4].description
+      value: '**REALLY BIG** boost to fuel capacity'
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[0].entries.Array.data[5].description
+      value: You'll never run out of fuel again...\nI hope...
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[1].entries.Array.data[0].description
+      value: Dig through tougher dirt and rocks
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[1].entries.Array.data[1].description
+      value: Early rocks shouldn't be a challenge after this
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[1].entries.Array.data[2].description
+      value: Do you even want a challenge?
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[2].entries.Array.data[0].description
+      value: Minor speed upgrade
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[2].entries.Array.data[1].description
+      value: Another small upgrade
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[2].entries.Array.data[2].description
+      value: Now we're talking... that's double the starting speed!
       objectReference: {fileID: 0}
     - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
       propertyPath: upgradeList.Array.data[3].entries.Array.data[0].description
@@ -2950,6 +3066,46 @@ PrefabInstance:
     - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
       propertyPath: upgradeList.Array.data[3].entries.Array.data[1].description
       value: Doubles Turning Speed... Again
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[4].entries.Array.data[0].description
+      value: Save 10% more of your gold on explosions (up to 30%)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[4].entries.Array.data[1].description
+      value: Save 20% more of your gold on explosions (up to 50%)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[4].entries.Array.data[2].description
+      value: Save 25% more of your gold on explosions (up to 75%)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[5].entries.Array.data[0].description
+      value: Allows for controlling move speed with Up/Down arrows.
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[6].entries.Array.data[0].description
+      value: Increase the amount of heat before your drill blows up.  Then you can
+        ignore a few pebbles.
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[6].entries.Array.data[1].description
+      value: Further increase the amount of heat before your drill blows up.  We
+        all hit rocks now and then, right?
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[6].entries.Array.data[2].description
+      value: Really increases the amount of heat before your drill blows up.  Do
+        you maybe need glasses?
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[7].entries.Array.data[0].description
+      value: Double the amount of speed control in both directions
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[8].entries.Array.data[0].description
+      value: I... I don't actually know what this does...  You'll have to test it
+        for me.
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
