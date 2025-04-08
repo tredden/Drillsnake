@@ -91,7 +91,7 @@ public class PlayerController : MonoBehaviour
         // TODO: change stats to match upgrade types
         switch (type) {
             case UpgradeType.ALCHEMY:
-                // TODO:
+                snakeController.alchemy = value;
                 break;
             case UpgradeType.DRILL_STRENGTH:
                 snakeController.drillStats.drillHardness = value;

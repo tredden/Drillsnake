@@ -1882,7 +1882,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 3.3561, y: 0.0000076293945}
+  m_AnchoredPosition: {x: 3.3561, y: -0.0000076293945}
   m_SizeDelta: {x: -11.7725, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1255501567
@@ -2940,12 +2940,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 6150030125558446927}
     - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[8].owned
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
       propertyPath: upgradeList.Array.data[0].startingValue
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[8].startingValue
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
       propertyPath: upgradeList.Array.data[8].entries.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
       propertyPath: upgradeList.Array.data[0].fullPurchaseDescription
@@ -2981,7 +2989,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
       propertyPath: upgradeList.Array.data[8].fullPurchaseDescription
-      value: Wait... did those rocks turn into gold????
+      value: ALL/nDIRT/nIS/nGOOOOOOOOLD!!!!!
       objectReference: {fileID: 0}
     - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
       propertyPath: upgradeList.Array.data[0].entries.Array.data[0].price
@@ -3009,7 +3017,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
       propertyPath: upgradeList.Array.data[8].entries.Array.data[0].value
-      value: 1
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[8].entries.Array.data[1].price
+      value: 500000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[8].entries.Array.data[1].value
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
       propertyPath: upgradeList.Array.data[0].entries.Array.data[0].description
@@ -3106,6 +3122,10 @@ PrefabInstance:
       propertyPath: upgradeList.Array.data[8].entries.Array.data[0].description
       value: I... I don't actually know what this does...  You'll have to test it
         for me.
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[8].entries.Array.data[1].description
+      value: Wait... did those rocks turn into gold????
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
