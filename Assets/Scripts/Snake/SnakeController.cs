@@ -69,7 +69,7 @@ public class SnakeController : MonoBehaviour
     public float currentFuel;
     public float minFuelBurnRate = 1f;
 
-    public float alchemy = 1.5f;
+    public float alchemy = 0f;
     public float alchemyGoldMult = 3f;
 
     public float hazardToFuelMult = .0001f;
@@ -172,7 +172,10 @@ public class SnakeController : MonoBehaviour
 
             // Elongate from gold
             float addedGold = results.totalGold * goldMult;
-            if (results.maxThickness > alchemy) {
+            if (alchemy >= 1) {
+                addedGold += results.totalHazard * goldMult * alchemyGoldMult;
+            }
+            if (alchemy >= 2) {
                 addedGold += results.totalThickness * goldMult * alchemyGoldMult;
             }
             if (addedGold > 0) {

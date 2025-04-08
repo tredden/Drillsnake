@@ -21,6 +21,8 @@ public class PlayerController : MonoBehaviour
 
     bool enableSpeedControl = false;
     float maxSpeedControl = 0f;
+    float targetSpeedChange = 1f;
+    public float targetSpeedChangeTime = 1f;
 
     bool hasShownSalvageText = false;
 
@@ -184,7 +186,9 @@ public class PlayerController : MonoBehaviour
         }
 
         controlInputs.turn = Input.GetAxis("Horizontal");
-        controlInputs.targetSpeed = 1 + (this.enableSpeedControl ? (Input.GetAxis("Vertical") * this.maxSpeedControl) : 0f);
+        float targetAcc = Input.GetAxis("Vertical") * 1f / this.targetSpeedChangeTime * Time.deltaTime;
+        this.targetSpeedChange = Mathf.Clamp(targetSpeedChange + targetAcc, -.5f, .5f + this.maxSpeedControl);
+        controlInputs.targetSpeed = 1 + (this.enableSpeedControl ? this.targetSpeedChange : 0f);
         
         snakeController.SetControlInputs(controlInputs);
 
@@ -223,6 +227,7 @@ public class PlayerController : MonoBehaviour
         if (!dying) {
             TriggerGoldReturn();
         }
+        this.targetSpeedChange = 0f;
         lastDepositTime = Time.time;
         // let us keep partially accumulated gold
         this.OnSnakeGoldGained(0);
