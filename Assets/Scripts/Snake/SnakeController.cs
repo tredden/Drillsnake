@@ -120,7 +120,7 @@ public class SnakeController : MonoBehaviour
     {
         gold = value;
         onGoldGained.Invoke((int)gold);
-        SetLength(Mathf.Max(segments, (int)(gold / 100f) + 5));
+        SetLength(Mathf.Max(segments, (int)(gold / 20f) + 5));
     }
 
     // Update is called once per frame
