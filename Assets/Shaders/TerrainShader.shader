@@ -195,6 +195,12 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                 float3 lgold = float3(0, 0.7f, 0);
                 return qbez(dgold, mgold, lgold, t);
             }
+            float3 tsample_coal(float t) {
+                float3 dcoal = float3(.9f, 0.f, .7f);
+                float3 mcoal = float3(.8f, 0.f, .6f);
+                float3 lcoal = float3(.7f, 0.f, .5f);
+                return qbez(dcoal, mcoal, lcoal, t);
+            }
             float3 tsample_soil(float t) {
                 float3 dsoil = float3(0, 0, .15);
                 float3 msoil = float3(0, 0, .1f);
@@ -270,7 +276,8 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                  float rock_density_mult = 1.f * (1.f + uv.y / (8192.f / effectivePixelFactor));
                  float rock_size_mult = 1.f;
                  float rock_to_gold_threshold = .1f * (1.f + uv.y / (16384.f / effectivePixelFactor));
-                 float rock_to_hard_threshold = .1f * (1.f + uv.y / (8192.f / effectivePixelFactor));
+                 float rock_to_coal_threshold = rock_to_gold_threshold + rock_to_gold_threshold * 2.f;
+                 float rock_to_hard_threshold = rock_to_coal_threshold + .1f * (1.f + uv.y / (8192.f / effectivePixelFactor));
                  float min_rock_depth = 8.f / effectivePixelFactor;
 
 
@@ -309,17 +316,19 @@ Shader "Custom/ShadertoyTerrainGenFixedView" // Renamed shader slightly
                  else { // Rock
                      float rock_t = 1.0f - (1.0f - t) * (1.0f - t);
                      rock_t += (r_rock - d_voronoi) * 2.0f;
-                     if (vrand(vn_pos, _Seed ^ 4u) < rock_to_gold_threshold) { // threshold for randomly making a rock into gold
-                         col = tsample_gold(rock_t);
-                     }
-                     else {
-                         if (vrand(vn_pos, _Seed ^ 22u) < rock_to_hard_threshold) {
-                             col = tsample_denserock(rock_t);
-                         }
-                         else {
-                             col = tsample_rock(rock_t);
-                         }
-                     }
+                     float rock_type = vrand(vn_pos, _Seed ^ 4u);
+                     col = rock_type < rock_to_gold_threshold ? tsample_gold(rock_t) : rock_type < rock_to_coal_threshold ? tsample_coal(rock_t) : rock_type < rock_to_hard_threshold ? tsample_denserock(rock_t) : tsample_rock(rock_t);
+                     //if (rock_type < rock_to_gold_threshold) { // threshold for randomly making a rock into gold
+                     //    col = tsample_gold(rock_t);
+                     //}
+                     //else {
+                     //    if (vrand(vn_pos, _Seed ^ 22u) < rock_to_hard_threshold) {
+                     //        col = tsample_denserock(rock_t);
+                     //    }
+                     //    else {
+                     //        col = tsample_rock(rock_t);
+                     //    }
+                     //}
                  }
 
                  // --- Ore Vein Calculations ---                 

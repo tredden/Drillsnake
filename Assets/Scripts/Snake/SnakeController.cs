@@ -60,6 +60,7 @@ public class SnakeController : MonoBehaviour
     Collider2D drillCollider;
     ParticleSystem drillDirtParticles;
     ParticleSystem drillGoldParticles;
+    ParticleSystem drillCoalParticles;
     private ControlInputs controlInputs;
     public float speed = 0f;
     private SnakeState _state = SnakeState.Spawning;
@@ -70,6 +71,8 @@ public class SnakeController : MonoBehaviour
 
     public float alchemy = 1.5f;
     public float alchemyGoldMult = 3f;
+
+    public float hazardToFuelMult = .0001f;
 
     public SnakeState state
     {
@@ -176,6 +179,10 @@ public class SnakeController : MonoBehaviour
                 SetGold(gold + addedGold);
             }
 
+            float addedFuel = results.totalHazard * hazardToFuelMult;
+            Debug.Log("Adding Fuel " + addedFuel);
+            this.currentFuel = Mathf.Min(currentFuel + addedFuel, maxFuel);
+
             // Thoughts on drilling
             // If a pixel is too hard, it stays and does constant damage to the drill while it's in it (and slow down).
             // If the average hardness of the pixels mined is above maybe 50% of the drill's rated hardness, it takes damage and slows.
@@ -234,6 +241,12 @@ public class SnakeController : MonoBehaviour
         if (goldParticlesToRelease >= 1) {
             drillGoldParticles.Emit(goldParticlesToRelease);
         }
+
+        float particlesPerHazard = 2f;
+        int hazardParticlesToRelease = (int)(results.totalHazard * particlesPerHazard);
+        if (hazardParticlesToRelease >= 1) {
+            drillCoalParticles.Emit(hazardParticlesToRelease);
+        }
     }
 
     private void AppendSegments(int add)
@@ -250,6 +263,7 @@ public class SnakeController : MonoBehaviour
                 drillCollider = segment.transform.GetChild(0).GetComponent<Collider2D>();
                 drillDirtParticles = segment.transform.GetChild(1).GetComponent<ParticleSystem>();
                 drillGoldParticles = segment.transform.GetChild(2).GetComponent<ParticleSystem>();
+                drillCoalParticles = segment.transform.GetChild(3).GetComponent<ParticleSystem>();
             }
 
             GameObject currentSegment = segment;

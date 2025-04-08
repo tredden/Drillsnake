@@ -1352,6 +1352,10 @@ PrefabInstance:
       value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: -7325483863391762208, guid: 7a66281a4f5da40fb81d97283c0b699f, type: 3}
+      propertyPath: hazardToFuelMult
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: -7325483863391762208, guid: 7a66281a4f5da40fb81d97283c0b699f, type: 3}
       propertyPath: drillStats.maxDrillHeat
       value: 5
       objectReference: {fileID: 0}
@@ -2948,6 +2952,10 @@ PrefabInstance:
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
+      propertyPath: upgradeList.Array.data[6].startingValue
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
       propertyPath: upgradeList.Array.data[8].startingValue
       value: 1.5
       objectReference: {fileID: 0}
@@ -3053,7 +3061,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
       propertyPath: upgradeList.Array.data[1].entries.Array.data[0].description
-      value: Dig through tougher dirt and rocks
+      value: Dig through tougher dirt and rocks.  Should make coal hurt less.
       objectReference: {fileID: 0}
     - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
       propertyPath: upgradeList.Array.data[1].entries.Array.data[1].description

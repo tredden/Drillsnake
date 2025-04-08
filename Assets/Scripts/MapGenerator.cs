@@ -280,11 +280,12 @@ public class MapGenerator : MonoBehaviour
                     inBounds = x >= 0 && x < pixelWidth && y >= 0 + yOffset && y < pixelHeight + yOffset;
                     uv = new Vector2(x, -y) / worldScale;
                     float dens = density(uv);
-                    r = SampleHazardValue(uv, dens);
                     if (hasCarveHistory && carveHistory[i]) {
+                        r = 0;
                         g = 0;
                         b = 0;
                     } else {
+                        r = SampleHazardValue(uv, dens);
                         g = SampleOreValue(uv, dens);
                         b = SampleDirtThickness(uv, dens);
                     }
@@ -326,6 +327,7 @@ public class MapGenerator : MonoBehaviour
                     colors[i] = c;
                 } else if (hasCarveHistory && carveHistory[i]) {
                     c = colors[i];
+                    c.r = 0;
                     c.g = 0;
                     c.b = 0;
                     colors[i] = c;
@@ -438,6 +440,7 @@ public class MapGenerator : MonoBehaviour
                     output.totalGold += c.g;
                     output.totalHazard += c.r;
                     c.b = Mathf.Max(0f, c.b - drillStrength); // rock
+                    c.r = 0; // coal
                     c.g = 0; // gold
                     carveHistory[yr * chunkScale + xr] = true;
                     texC.SetPixel(xr, yr, c);
