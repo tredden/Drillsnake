@@ -73,6 +73,9 @@ public class AudioController : MonoBehaviour
             case "explode":
                 oneshots.PlayOneShot(sfx[0]);
                 break;
+            case "buy":
+                oneshots.PlayOneShot(sfx[1]);
+                break;
         }
     }
 

@@ -256,6 +256,7 @@ public class GameController : MonoBehaviour
         int cost = data.GetNextCost();
         data.owned++;
         float value = data.GetCurrentValue();
+        AudioController.GetInstance().PlaySound("buy");
         this.onUpgradePurchased.Invoke(cost, upgradeType, value);
         playerGold -= cost;
         PopulateShop();
