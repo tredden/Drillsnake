@@ -908,7 +908,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 713194346}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.34307668
+  m_Size: 0.34307665
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2788,14 +2788,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 3938522405115461547, guid: 827d8260d740e4b69b1dc238462e6b28, type: 3}
-      propertyPath: sfx.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 3938522405115461547, guid: 827d8260d740e4b69b1dc238462e6b28, type: 3}
-      propertyPath: sfx.Array.data[1]
-      value: 
-      objectReference: {fileID: 8300000, guid: 419f51382381b4f4faa62d1de959b4b5, type: 3}
     - target: {fileID: 6748540753083544776, guid: 827d8260d740e4b69b1dc238462e6b28, type: 3}
       propertyPath: m_Name
       value: AudioController

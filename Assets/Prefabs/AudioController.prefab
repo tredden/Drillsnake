@@ -52,6 +52,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 6988b3dba54804554b91b3ed8dc57f94, type: 3}
   sfx:
   - {fileID: 8300000, guid: e33c60b83f13a487a8daa84fdb6cd551, type: 3}
+  - {fileID: 8300000, guid: 419f51382381b4f4faa62d1de959b4b5, type: 3}
   digsfx: {fileID: 8300000, guid: 12b6c0e4c52a340489f1c2705ef9bf5d, type: 3}
 --- !u!82 &3543203962226765952
 AudioSource:
