@@ -259,7 +259,15 @@ public class GameController : MonoBehaviour
         AudioController.GetInstance().PlaySound("buy");
         this.onUpgradePurchased.Invoke(cost, upgradeType, value);
         playerGold -= cost;
+        if (upgradeType == UpgradeType.SPEED_CONTROL) {
+            UnhideUpgrade(UpgradeType.MAX_SPEED);
+        }
         PopulateShop();
+    }
+
+    public void UnhideUpgrade(UpgradeType upgradeType)
+    {
+        GetDataForUpgradeType(upgradeType).hidden = false;
     }
 
     UpgradeData GetDataForUpgradeType(UpgradeType upgradeType)
