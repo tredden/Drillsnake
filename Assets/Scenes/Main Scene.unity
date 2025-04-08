@@ -3017,7 +3017,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
       propertyPath: upgradeList.Array.data[7].fullPurchaseDescription
-      value: The finesse...
+      value: Did you overdrive the motor???
       objectReference: {fileID: 0}
     - target: {fileID: 6923848144011873382, guid: a600965dc5adbec4e948b020cd268e60, type: 3}
       propertyPath: upgradeList.Array.data[8].fullPurchaseDescription
